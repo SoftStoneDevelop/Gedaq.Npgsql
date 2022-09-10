@@ -7,10 +7,9 @@ namespace Gedaq.Npgsql.Attributes
     {
         public ColumnAttribute(
             string nameInDatabase,
-            bool notNull,
             NpgsqlTypes.NpgsqlDbType type
             )
-            : base(nameInDatabase, notNull)
+            : base(nameInDatabase)
         {
         }
     }
