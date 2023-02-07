@@ -1,14 +1,12 @@
 ﻿using Gedaq.Npgsql.Enums;
 using Gedaq.Provider.Attributes;
 using Gedaq.Provider.Enums;
-using System;
 
 namespace Gedaq.Npgsql.Attributes
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
-    public sealed class QueryAttribute : Gedaq.Provider.Attributes.QueryReadAttribute
+    public sealed class QueryReadAttribute : Gedaq.Provider.Attributes.QueryReadAttribute
     {
-        public QueryAttribute(
+        public QueryReadAttribute(
             SelectItemType[] queries,
             MethodType methodType,
             SourceType sourceType
@@ -17,7 +15,7 @@ namespace Gedaq.Npgsql.Attributes
         {
         }
 
-        public QueryAttribute(
+        public QueryReadAttribute(
             (
             string query,
             NpgsqlTypes.NpgsqlDbType[] returnTypes,
