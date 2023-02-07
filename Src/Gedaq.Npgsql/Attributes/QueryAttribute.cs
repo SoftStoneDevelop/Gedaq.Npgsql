@@ -1,4 +1,5 @@
 ﻿using Gedaq.Npgsql.Enums;
+using Gedaq.Provider.Attributes;
 using Gedaq.Provider.Enums;
 using System;
 
@@ -8,10 +9,7 @@ namespace Gedaq.Npgsql.Attributes
     public sealed class QueryAttribute : Gedaq.Provider.Attributes.QueryReadAttribute
     {
         public QueryAttribute(
-            (
-            string query,
-            string itemTypeName
-            )[] queries,
+            SelectItemType[] queries,
             MethodType methodType,
             SourceType sourceType
             )
