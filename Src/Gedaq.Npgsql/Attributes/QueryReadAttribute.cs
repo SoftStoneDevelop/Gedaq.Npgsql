@@ -1,16 +1,18 @@
 ﻿using Gedaq.Npgsql.Enums;
 using Gedaq.Provider.Enums;
+using System;
 
 namespace Gedaq.Npgsql.Attributes
 {
-    public sealed class QueryReadAttribute : Gedaq.Provider.Attributes.QueryReadAttribute
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Method, AllowMultiple = true)]
+    public sealed class QueryReadAttribute : Attribute
     {
         public QueryReadAttribute(
             string[] queries,
+            Type[] queriesMapType,
             MethodType methodType,
             SourceType sourceType
             )
-            : base(queries, methodType)
         {
         }
 

@@ -1,6 +1,9 @@
-﻿namespace Gedaq.Npgsql.Attributes
+﻿using System;
+
+namespace Gedaq.Npgsql.Attributes
 {
-    public sealed class ScalarAttribute : Gedaq.Provider.Attributes.ScalarAttribute
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Method, AllowMultiple = true)]
+    public sealed class ScalarAttribute : Attribute
     {
     }
 }

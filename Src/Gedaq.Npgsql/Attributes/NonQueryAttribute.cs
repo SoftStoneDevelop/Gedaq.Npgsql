@@ -2,7 +2,8 @@
 
 namespace Gedaq.Npgsql.Attributes
 {
-    public sealed class NonQueryAttribute : Gedaq.Provider.Attributes.NonQueryAttribute
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Method, AllowMultiple = true)]
+    public sealed class NonQueryAttribute : Attribute
     {
     }
 }
