@@ -8,22 +8,21 @@ namespace Gedaq.Npgsql.Attributes
     public sealed class QueryReadAttribute : Attribute
     {
         public QueryReadAttribute(
-            string[] queries,
-            Type[] queriesMapType,
+            string query,
+            Type queryMapType,
             MethodType methodType,
-            SourceType sourceType
+            SourceType sourceType,
+            string methodName
             )
         {
         }
 
         public QueryReadAttribute(
-            (
-            string query,
-            NpgsqlTypes.NpgsqlDbType[] returnTypes,
-            string itemTypeName
-            )[] queries,
+            string[] queries,
+            Type[] queriesMapType,
             MethodType methodType,
-            SourceType sourceType
+            SourceType sourceType,
+            string methodName
             )
         {
         }
