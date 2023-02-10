@@ -11,4 +11,4 @@
 
 </h3>
 
-Attributes and provider required for Gedaq ORM operation for PostgreSQL database.
+Attributes required for Gedaq ORM operation for PostgreSQL database.
