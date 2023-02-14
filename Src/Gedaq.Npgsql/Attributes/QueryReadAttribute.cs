@@ -16,8 +16,7 @@ namespace Gedaq.Npgsql.Attributes
             string methodName,
             string[] parametrNames = null,
             Type[] parametrTypes = null,
-            NpgsqlDbType[] parametrDbTypes = null,
-            int? commandTimeout = null
+            NpgsqlDbType[] parametrDbTypes = null
             )
         {
         }
