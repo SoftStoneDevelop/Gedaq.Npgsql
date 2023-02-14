@@ -1,8 +1,11 @@
-﻿namespace Gedaq.Npgsql.Enums
+﻿using System;
+
+namespace Gedaq.Npgsql.Enums
 {
+    [Flags]
     public enum SourceType
     {
-        Connection = 0,
-        NpgsqlDataSource = 1
+        Connection = 1,
+        NpgsqlDataSource = 2
     }
 }
