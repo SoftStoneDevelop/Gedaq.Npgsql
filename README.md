@@ -11,4 +11,8 @@
 
 </h3>
 
+<h3 align="center">
+  <a href="https://github.com/SoftStoneDevelop/Gedaq.Npgsql/tree/main/Documentation/Readme.md">Documentation</a>
+</h3>
+
 Attributes required for Gedaq ORM operation for PostgreSQL database.
