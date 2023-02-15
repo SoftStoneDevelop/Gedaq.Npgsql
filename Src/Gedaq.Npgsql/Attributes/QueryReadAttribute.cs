@@ -20,15 +20,5 @@ namespace Gedaq.Npgsql.Attributes
             )
         {
         }
-
-        public QueryReadAttribute(
-            string[] queries,
-            Type[] queriesMapType,
-            MethodType methodType,
-            SourceType sourceType,
-            string methodName
-            )
-        {
-        }
     }
 }
