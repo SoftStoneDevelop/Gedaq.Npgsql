@@ -1,4 +1,5 @@
-﻿using Gedaq.Npgsql.Enums;
+﻿using Gedaq.Common.Enums;
+using Gedaq.Npgsql.Enums;
 using Gedaq.Provider.Enums;
 using System;
 
@@ -13,6 +14,8 @@ namespace Gedaq.Npgsql.Attributes
             MethodType methodType,
             SourceType sourceType,
             string methodName,
+            GenerateType generateType = GenerateType.Single,
+            string batchMethodName = null,
             int numberInBatch = -1
             )
         {

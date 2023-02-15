@@ -15,7 +15,6 @@ namespace Gedaq.Npgsql.Attributes
             int size = -1,
             bool nullable = false,
             ParameterDirection direction = ParameterDirection.Input,
-            int numberInBatch = -1,
             int position = -1
             )
         {
