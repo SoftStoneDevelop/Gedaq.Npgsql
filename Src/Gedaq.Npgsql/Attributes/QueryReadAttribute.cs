@@ -14,9 +14,7 @@ namespace Gedaq.Npgsql.Attributes
             MethodType methodType,
             SourceType sourceType,
             string methodName,
-            GenerateType generateType = GenerateType.Single,
-            string batchMethodName = null,
-            int numberInBatch = -1
+            bool generate = false
             )
         {
         }
