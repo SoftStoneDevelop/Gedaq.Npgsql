@@ -1,5 +1,4 @@
 ﻿using Gedaq.Common.Enums;
-using Gedaq.Provider.Enums;
 using System;
 
 namespace Gedaq.Npgsql.Attributes
@@ -9,7 +8,7 @@ namespace Gedaq.Npgsql.Attributes
     {
         public QueryBatchAttribute(
             string batchName,
-            BatchType batchType,
+            QueryType queryType,
             MethodType methodType
             )
         {
