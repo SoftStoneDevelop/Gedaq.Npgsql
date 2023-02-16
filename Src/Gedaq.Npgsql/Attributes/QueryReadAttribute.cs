@@ -14,7 +14,7 @@ namespace Gedaq.Npgsql.Attributes
             MethodType methodType,
             SourceType sourceType,
             string methodName,
-            bool generate = false
+            bool generate = true
             )
         {
         }
