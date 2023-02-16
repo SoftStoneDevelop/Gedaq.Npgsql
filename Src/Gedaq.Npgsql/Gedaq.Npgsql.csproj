@@ -4,11 +4,11 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Gedaq.Common" Version="0.1.0.4-beta" />
-		<PackageReference Include="Npgsql" Version="7.0.1" />
+		<PackageReference Include="Npgsql" Version="7.0.2" />
 	</ItemGroup>
 	<PropertyGroup>
 		<PackageId>Gedaq.Npgsql</PackageId>
-		<PackageVersion>0.1.2.1-beta</PackageVersion>
+		<PackageVersion>0.1.2.2-beta</PackageVersion>
 		<Authors>Brevnov Vyacheslav Sergeevich</Authors>
 		<RepositoryUrl>https://github.com/SoftStoneDevelop/Gedaq.Npgsql</RepositoryUrl>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
