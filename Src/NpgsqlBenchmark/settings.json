@@ -1,5 +1,5 @@
 {
   "ConnectionStrings": {
-    "SqlConnection": "Server=127.0.0.1;Port=5432;Database=gedaq;Persist Security Info=true;User Id=postgres;Password=qwe890-;"
+    "SqlConnection": "Server=127.0.0.1;Port=5432;Database=gedaq;Persist Security Info=true;User Id=postgres;Password=password;"
   }
 }
