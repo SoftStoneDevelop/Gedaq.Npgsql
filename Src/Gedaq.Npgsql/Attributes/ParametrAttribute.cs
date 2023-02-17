@@ -9,8 +9,8 @@ namespace Gedaq.Npgsql.Attributes
     {
         public ParametrAttribute(
             string methodName,
+            Type parametrType,
             string parametrName = null,
-            Type parametrType = null,
             NpgsqlDbType dbType = NpgsqlDbType.Unknown,
             int size = -1,
             bool nullable = false,
