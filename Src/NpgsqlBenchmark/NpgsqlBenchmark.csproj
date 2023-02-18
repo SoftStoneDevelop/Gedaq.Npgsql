@@ -7,7 +7,7 @@
 		<PackageReference Include="BenchmarkDotNet" Version="0.13.5" />
 		<PackageReference Include="Gedaq" Version="0.0.4-beta" />
 		<PackageReference Include="Gedaq.DbConnection" Version="0.1.0-beta" />
-		<PackageReference Include="Gedaq.Npgsql" Version="0.1.2.5-beta" />
+		<PackageReference Include="Gedaq.Npgsql" Version="0.2.0" />
 		<PackageReference Include="System.Linq.Async" Version="6.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
 	</ItemGroup>
