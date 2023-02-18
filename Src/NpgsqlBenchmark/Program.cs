@@ -1,59 +1,18 @@
 ﻿using BenchmarkDotNet.Running;
-using Gedaq.Common.Enums;
-using Gedaq.DbConnection.Attributes;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
 using NpgsqlBenchmark.Benchmarks;
-using NpgsqlBenchmark.Model;
 using System;
-using System.Data;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace NpgsqlBenchmark
 {
     internal class Program
     {
-        //static async Task Main(string[] args)
         static void Main(string[] args)
         {
-            //await GetData();
-
             BenchmarkRunner.Run<ReadInnerMap>();
             BenchmarkRunner.Run<ReadInnerMapAsync>();
-        }
-
-        [Query(
-            @"
-SELECT 
-    p.firstname,    
-    p.id,
-    p.middlename,
-    p.lastname
-FROM person p
-WHERE p.id > @id
-ORDER BY p.id ASC
-",
-            typeof(Person),
-            MethodType.Sync | MethodType.Async,
-            "GetData",
-            QueryType.Read | QueryType.Scalar | QueryType.NonQuery
-            )]
-        [Parametr("GetData", parametrName: "id", parametrType: typeof(int), dbType: DbType.Int32)]
-        private static async Task GetData()
-        {
-            var root = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("settings.json", optional: false)
-                .Build()
-            ;
-
-            using var connection = new NpgsqlConnection(root.GetConnectionString("SqlConnection"));
-            var scalar = connection.ScalarGetData(13);
-            var scalarAsync = await connection.ScalarGetDataAsync(13);
-            var data = connection.GetData(13).ToList();
-            var dataAsync = await connection.GetDataAsync(13).ToListAsync();
         }
 
         private static void FillTestDatabase()
