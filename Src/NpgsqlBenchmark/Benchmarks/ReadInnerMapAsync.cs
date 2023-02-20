@@ -56,11 +56,10 @@ FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
 WHERE p.id = $1
 ",
-        typeof(Person),
-        MethodType.Async,
-        SourceType.Connection,
-        "ReadInnerMapAsync"
-        )]
+            "ReadInnerMapAsync",
+            typeof(Person),
+            MethodType.Async
+            )]
         [Gedaq.Npgsql.Attributes.Parametr("ReadInnerMapAsync", parametrType: typeof(int), position: 1)]
         [Benchmark(Description = $"Gedaq.Npgsql Async")]
         public async Task NpgsqlAsync()
@@ -86,10 +85,10 @@ FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
 WHERE p.id = @id
 ",
-        typeof(Person),
-        MethodType.Async,
-        "ReadInnerMapAsync"
-        )]
+            "ReadInnerMapAsync",
+            typeof(Person),
+            MethodType.Async
+            )]
         [Gedaq.DbConnection.Attributes.Parametr("ReadInnerMapAsync", parametrType: typeof(int), parametrName: "id")]
         [Benchmark(Baseline = true, Description = "Gedaq.DbConnection Async")]
         public async Task DbConnectionAsync()

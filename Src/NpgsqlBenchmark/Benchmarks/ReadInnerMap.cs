@@ -55,11 +55,9 @@ FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
 WHERE p.id = $1
 ",
-        typeof(Person),
-        MethodType.Sync,
-        SourceType.Connection,
-        "ReadInnerMap"
-        )]
+            "ReadInnerMap",
+            typeof(Person)
+            )]
         [Gedaq.Npgsql.Attributes.Parametr("ReadInnerMap", parametrType: typeof(int), position: 1)]
         [Benchmark(Description = $"Gedaq.Npgsql")]
         public void Npgsql()
@@ -85,10 +83,9 @@ FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
 WHERE p.id = @id
 ",
-        typeof(Person),
-        MethodType.Sync,
-        "ReadInnerMap"
-        )]
+            "ReadInnerMap",
+            typeof(Person)
+            )]
         [Gedaq.DbConnection.Attributes.Parametr("ReadInnerMap", parametrType: typeof(int), parametrName:"id")]
         [Benchmark(Baseline = true, Description = "Gedaq.DbConnection")]
         public void DbConnection()
