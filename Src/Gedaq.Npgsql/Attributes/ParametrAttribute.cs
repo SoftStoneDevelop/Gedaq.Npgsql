@@ -15,7 +15,12 @@ namespace Gedaq.Npgsql.Attributes
             int size = -1,
             bool nullable = false,
             ParameterDirection direction = ParameterDirection.Input,
-            int position = -1
+            int position = -1,
+            string sourceColumn = "",
+            bool sourceColumnNullMapping = false,
+            DataRowVersion sourceVersion = DataRowVersion.Current,
+            byte scale = 0,
+            byte precision = 0
             )
         {
         }
