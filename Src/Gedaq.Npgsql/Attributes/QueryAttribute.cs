@@ -9,10 +9,10 @@ namespace Gedaq.Npgsql.Attributes
     {
         public QueryAttribute(
             string query,
-            Type queryMapType,
-            MethodType methodType,
-            SourceType sourceType,
             string methodName,
+            Type queryMapType = null,
+            MethodType methodType = MethodType.Sync,
+            SourceType sourceType = SourceType.Connection,
             QueryType queryType = QueryType.Read,
             bool generate = true
             )
