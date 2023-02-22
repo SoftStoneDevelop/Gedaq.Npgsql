@@ -16,4 +16,4 @@ public QueryAttribute(
 Unique parametrs:<br>
 `sourceType`: source type(connection/NpgsqlDataSource)<br>
 
-Rest parametrs and usage same as [DbQuery](https://github.com/SoftStoneDevelop/Gedaq.DbConnection/blob/main/Documentation/Query.md).
+Rest parametrs and usage same as [Query](https://github.com/SoftStoneDevelop/Gedaq.DbConnection/blob/main/Documentation/Query.md).
