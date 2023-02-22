@@ -15,7 +15,7 @@
   <a href="https://github.com/SoftStoneDevelop/Gedaq.Npgsql/tree/main/Documentation/Readme.md">Documentation</a>
 </h3>
 
-Attributes required for [Gedaq ORM](https://github.com/SoftStoneDevelop/Gedaq) operation for PostgreSQL database.
+Attributes required for [Gedaq ORM](https://github.com/SoftStoneDevelop/Gedaq) operation for PostgreSQL database and [Npgsql](https://github.com/npgsql/npgsql).
 
 Simple single parameter(int) query comparison Gedaq.Npgsql vs Gedaq.DbConnection:
 
