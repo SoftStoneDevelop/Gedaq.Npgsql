@@ -1,4 +1,4 @@
-[Code]()
+[Code](https://github.com/SoftStoneDevelop/Gedaq.Npgsql/blob/main/Src/NpgsqlBenchmark/Benchmarks/BinaryImportMap.cs)
 
 |             Method | Size |       Mean | Ratio |        Gen0 |        Gen1 |       Gen2 | Allocated | Alloc Ratio |
 |------------------- |----- |-----------:|------:|------------:|------------:|-----------:|----------:|------------:|
