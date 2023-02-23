@@ -1,3 +1,3 @@
-- [Npgsql vs DbConnection]()
-- [Query vs BinaryImport from subquery]()
-- [Query vs BinaryImport from table]()
+- [Npgsql vs DbConnection](https://github.com/SoftStoneDevelop/Gedaq.Npgsql/blob/main/Benchmarks/Benchmark1.md)
+- [Query vs BinaryImport from subquery](https://github.com/SoftStoneDevelop/Gedaq.Npgsql/blob/main/Benchmarks/Benchmark2.md)
+- [Query vs BinaryImport from table](https://github.com/SoftStoneDevelop/Gedaq.Npgsql/blob/main/Benchmarks/Benchmark3.md)
