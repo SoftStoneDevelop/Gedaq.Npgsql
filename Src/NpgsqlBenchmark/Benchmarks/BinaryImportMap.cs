@@ -1,7 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
-using Gedaq.Common.Enums;
-using Gedaq.Npgsql.Enums;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
 using NpgsqlBenchmark.Model;
@@ -14,9 +12,9 @@ namespace NpgsqlBenchmark.Benchmarks
     [MemoryDiagnoser]
     [SimpleJob(RuntimeMoniker.Net70)]
     [HideColumns("Error", "StdDev", "Median", "RatioSD")]
-    public class ReadInnerMap
+    public class BinaryImportMap
     {
-        [Params(50, 100, 200)]
+        [Params(10, 20, 30, 40)]
         public int Size;
 
         private NpgsqlConnection _connection;
@@ -53,46 +51,45 @@ SELECT
     p.lastname
 FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
-WHERE p.id = $1
 ",
-            "ReadInnerMap",
+            "NpgsqlQuery",
             typeof(Person)
             )]
-        [Gedaq.Npgsql.Attributes.Parametr("ReadInnerMap", parametrType: typeof(int), position: 1)]
-        [Benchmark(Description = $"Gedaq.Npgsql")]
-        public void Npgsql()
+        [Benchmark(Description = $"NpgsqlQuery")]
+        public void NpgsqlQuery()
         {
             for (int i = 0; i < Size; i++)
             {
-                var persons = ((NpgsqlConnection)_connection).ReadInnerMap(50000).ToList();
+                var persons = _connection.NpgsqlQuery().ToList();
             }
         }
 
-        [Gedaq.DbConnection.Attributes.Query(
+        [Gedaq.Npgsql.Attributes.BinaryExport(
             @"
+COPY 
+(
 SELECT 
     p.id,
     p.firstname,
+    p.middlename,
+    p.lastname,
 ~StartInner::Identification:id~
     i.id,
-    i.typename,
+    i.typename
 ~EndInner::Identification~
-    p.middlename,
-    p.lastname
 FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
-WHERE p.id = @id
+) TO STDOUT (FORMAT BINARY)
 ",
-            "ReadInnerMap",
+            "NpgsqlBinaryImport",
             typeof(Person)
             )]
-        [Gedaq.DbConnection.Attributes.Parametr("ReadInnerMap", parametrType: typeof(int), parametrName:"id")]
-        [Benchmark(Baseline = true, Description = "Gedaq.DbConnection")]
-        public void DbConnection()
+        [Benchmark(Baseline = true, Description = "NpgsqlBinaryImport")]
+        public void NpgsqlBinaryImport()
         {
             for (int i = 0; i < Size; i++)
             {
-                var persons = ((DbConnection)_connection).ReadInnerMap(50000).ToList();
+                var persons = _connection.NpgsqlBinaryImport().ToList();
             }
         }
     }

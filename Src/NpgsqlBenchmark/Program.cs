@@ -11,8 +11,8 @@ namespace NpgsqlBenchmark
     {
         static void Main(string[] args)
         {
-            BenchmarkRunner.Run<ReadInnerMap>();
-            BenchmarkRunner.Run<ReadInnerMapAsync>();
+            //BenchmarkRunner.Run<QueryMap>();
+            BenchmarkRunner.Run<BinaryImportMap>();
         }
 
         private static void FillTestDatabase()
