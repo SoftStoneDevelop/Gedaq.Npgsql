@@ -63,7 +63,7 @@ readfixtureidentification_id
             typeof(Person), 
             Gedaq.Common.Enums.MethodType.Sync | Gedaq.Common.Enums.MethodType.Async
             )]
-public async Task SomeMethod(DbConnection connection)
+public async Task SomeMethod(NpgsqlConnection connection)
 {
     var persons = connection.BinaryExportTable().ToList();
     var personsAsync = await connection.BinaryExportTableAsync().ToListAsync();
@@ -101,7 +101,7 @@ ORDER BY p.id ASC
             typeof(Person), 
             Gedaq.Common.Enums.MethodType.Sync | Gedaq.Common.Enums.MethodType.Async
             )]
-public async Task SomeMethod(DbConnection connection)
+public async Task SomeMethod(NpgsqlConnection connection)
 {
     var persons = connection.BinaryExportSubqueryTable().ToList();
     var personsAsync = await connection.BinaryExportSubqueryAsync().ToListAsync();
