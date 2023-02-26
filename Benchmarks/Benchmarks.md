@@ -1,2 +1,0 @@
-- [Npgsql vs DbConnection](https://github.com/SoftStoneDevelop/Gedaq.Npgsql/blob/main/Benchmarks/Benchmark1.md)
-- [Query vs BinaryImport](https://github.com/SoftStoneDevelop/Gedaq.Npgsql/blob/main/Benchmarks/Benchmark2.md)
