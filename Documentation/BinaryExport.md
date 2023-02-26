@@ -38,6 +38,13 @@ public class Identification
 {
     public int Id { get; set; }
     public string TypeName { get; set; }
+    public Country Country { get; set; }
+}
+
+public class Country
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
 }
 
 ```
@@ -47,13 +54,13 @@ Usage from table:
 ```C#
 
 [BinaryExport(@"
-COPY readfixtureperson 
+COPY person 
 (
 id,
 firstname,
 ~StartInner::Identification:id~
     ~Reinterpret::id~
-readfixtureidentification_id,
+identification_id,
 ~EndInner::Identification~
 middlename,
 lastname
@@ -91,9 +98,9 @@ SELECT
     p.firstname,
     p.middlename,
     p.lastname
-FROM readfixtureperson p
-LEFT JOIN readfixtureidentification i ON i.id = p.readfixtureidentification_id
-LEFT JOIN readfixturecountry c ON c.id = i.readfixturecountry_id
+FROM person p
+LEFT JOIN identification i ON i.id = p.identification_id
+LEFT JOIN country c ON c.id = i.country_id
 ORDER BY p.id ASC
 ) TO STDOUT (FORMAT BINARY)
 ", 
