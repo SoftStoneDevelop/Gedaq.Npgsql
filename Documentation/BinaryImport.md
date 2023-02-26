@@ -77,6 +77,6 @@ FROM STDIN (FORMAT BINARY)
 public async Task SomeMethod(NpgsqlConnection connection, List<Person> list)
 {
     connection.BinaryImport(list);
-    await connection.BinaryImportAsync();
+    await connection.BinaryImportAsync(list);
 }
 ```
