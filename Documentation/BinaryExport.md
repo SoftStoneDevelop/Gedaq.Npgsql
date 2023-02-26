@@ -51,12 +51,12 @@ COPY readfixtureperson
 (
 id,
 firstname,
-middlename,
-lastname,
 ~StartInner::Identification:id~
     ~Reinterpret::id~
-readfixtureidentification_id
+readfixtureidentification_id,
 ~EndInner::Identification~
+middlename,
+lastname
 ) TO STDOUT (FORMAT BINARY)
 ", 
             "BinaryExportTable",
@@ -80,17 +80,17 @@ COPY
 (
 SELECT 
     p.id,
-    p.firstname,
-    p.middlename,
-    p.lastname,
 ~StartInner::Identification:id~
     i.id,
-    i.typename,
 ~StartInner::Country:id~
     c.id,
-    c.name
+    c.name,
 ~EndInner::Country~
+    i.typename,
 ~EndInner::Identification~
+    p.firstname,
+    p.middlename,
+    p.lastname
 FROM readfixtureperson p
 LEFT JOIN readfixtureidentification i ON i.id = p.readfixtureidentification_id
 LEFT JOIN readfixturecountry c ON c.id = i.readfixturecountry_id
@@ -107,5 +107,3 @@ public async Task SomeMethod(NpgsqlConnection connection)
     var personsAsync = await connection.BinaryExportSubqueryAsync().ToListAsync();
 }
 ```
-
-Note that simple properties(like `p.firstname`) always precede `Inner`(like `~StartInner::Identification:id~`) properties in queries. This is a feature of the generator and the `BinaryExport` command.
