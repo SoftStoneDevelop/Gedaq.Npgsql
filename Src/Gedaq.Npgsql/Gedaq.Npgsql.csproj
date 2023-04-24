@@ -8,7 +8,7 @@
 	</ItemGroup>
 	<PropertyGroup>
 		<PackageId>Gedaq.Npgsql</PackageId>
-		<PackageVersion>1.1.1.0</PackageVersion>
+		<PackageVersion>1.0.0.0</PackageVersion>
 		<Authors>Brevnov Vyacheslav Sergeevich</Authors>
 		<RepositoryUrl>https://github.com/SoftStoneDevelop/Gedaq.Npgsql</RepositoryUrl>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
