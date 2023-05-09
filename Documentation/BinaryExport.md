@@ -7,8 +7,9 @@ public BinaryExportAttribute(
         string methodName,
         Type queryMapType,
         MethodType methodType = MethodType.Sync,
-        SourceType sourceType = SourceType.Connection
-        )
+        SourceType sourceType = SourceType.Connection,
+        AccessModifier accessModifier = AccessModifier.AsContainingClass
+)
 
 ```
 Parametrs:<br>
@@ -17,6 +18,7 @@ Parametrs:<br>
 `queryMapType`: Type of result mapping collection<br>
 `methodType`: type of generated method(sync/async, flags enum)<br>
 `sourceType`: type of connection source<br>
+`accessModifier`: Access Modifier of Generated Methods.<br>
 
 Model classes in example:
 ```C#
