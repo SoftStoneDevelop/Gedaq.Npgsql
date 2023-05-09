@@ -8,8 +8,9 @@ public BinaryImportAttribute(
         Type queryMapType,
         NpgsqlDbType[] dbTypes = null,
         MethodType methodType = MethodType.Sync,
-        SourceType sourceType = SourceType.Connection
-        )
+        SourceType sourceType = SourceType.Connection,
+        AccessModifier accessModifier = AccessModifier.AsContainingClass
+)
 
 ```
 Parametrs:<br>
@@ -19,6 +20,7 @@ Parametrs:<br>
 `dbTypes`: postgresql databese types<br>
 `methodType`: type of generated method(sync/async, flags enum)<br>
 `sourceType`: type of connection source<br>
+`accessModifier`: Access Modifier of Generated Methods.<br>
 
 Model classes in example:
 ```C#
