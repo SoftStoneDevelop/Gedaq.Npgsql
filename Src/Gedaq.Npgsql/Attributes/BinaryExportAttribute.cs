@@ -12,7 +12,8 @@ namespace Gedaq.Npgsql.Attributes
             string methodName,
             Type queryMapType,
             MethodType methodType = MethodType.Sync,
-            SourceType sourceType = SourceType.Connection
+            SourceType sourceType = SourceType.Connection,
+            AccessModifier accessModifier = AccessModifier.AsContainingClass
             )
         {
         }
