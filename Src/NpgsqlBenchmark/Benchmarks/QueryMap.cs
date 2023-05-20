@@ -55,8 +55,9 @@ WHERE p.id = $1
 ",
             "ReadInnerMap",
             typeof(Person)
-            )]
-        [Gedaq.Npgsql.Attributes.Parametr("ReadInnerMap", parametrType: typeof(int), position: 1)]
+            ),
+            Gedaq.Npgsql.Attributes.Parametr(parametrType: typeof(int), position: 1)
+            ]
         [Benchmark(Description = $"Gedaq.Npgsql")]
         public void Npgsql()
         {
@@ -83,8 +84,9 @@ WHERE p.id = @id
 ",
             "ReadInnerMap",
             typeof(Person)
-            )]
-        [Gedaq.DbConnection.Attributes.Parametr("ReadInnerMap", parametrType: typeof(int), parametrName:"id")]
+            ),
+            Gedaq.DbConnection.Attributes.Parametr(parametrType: typeof(int), parametrName: "id")
+            ]
         [Benchmark(Baseline = true, Description = "Gedaq.DbConnection")]
         public void DbConnection()
         {
