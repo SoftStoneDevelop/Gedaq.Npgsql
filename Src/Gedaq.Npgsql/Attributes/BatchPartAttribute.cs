@@ -7,7 +7,6 @@ namespace Gedaq.Npgsql.Attributes
     {
         public BatchPartAttribute(
             string methodName,
-            string batchName,
             int position
             )
         {
