@@ -3,7 +3,6 @@ Constructors:
 ```C#
 
 public QueryBatchAttribute(
-      string batchName,
       QueryType queryType,
       MethodType methodType
       )

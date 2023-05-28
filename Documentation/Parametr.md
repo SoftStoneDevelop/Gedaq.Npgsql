@@ -3,7 +3,6 @@ Constructors:
 ```C#
 
 public ParametrAttribute(
-  string methodName,
   Type parametrType,
   string parametrName = null,
   NpgsqlDbType dbType = NpgsqlDbType.Unknown,
