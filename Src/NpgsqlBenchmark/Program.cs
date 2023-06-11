@@ -12,7 +12,8 @@ namespace NpgsqlBenchmark
         static void Main(string[] args)
         {
             //FillTestDatabase();
-            BenchmarkRunner.Run<CompareDapper>();
+            BenchmarkRunner.Run<ComparePrepareDapper>();
+            //BenchmarkRunner.Run<CompareDapper>();
             //BenchmarkRunner.Run<QueryMap>();
             //BenchmarkRunner.Run<BinaryImportMap>();
         }
