@@ -11,7 +11,7 @@ namespace NpgsqlBenchmark.Benchmarks
 {
     [MemoryDiagnoser]
     [SimpleJob(RuntimeMoniker.Net70)]
-    [HideColumns("Error", "StdDev", "Median", "RatioSD")]
+    [HideColumns("Error", "StdDev", "Median", "RatioSD", "Gen0", "Gen1", "Gen2")]
     public class QueryMap
     {
         [Params(50, 100, 200)]

@@ -3,7 +3,6 @@ using BenchmarkDotNet.Jobs;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
 using NpgsqlBenchmark.Model;
-using System.Data.Common;
 using System.IO;
 using System.Linq;
 
@@ -11,7 +10,7 @@ namespace NpgsqlBenchmark.Benchmarks
 {
     [MemoryDiagnoser]
     [SimpleJob(RuntimeMoniker.Net70)]
-    [HideColumns("Error", "StdDev", "Median", "RatioSD")]
+    [HideColumns("Error", "StdDev", "Median", "RatioSD", "Gen0", "Gen1", "Gen2")]
     public class BinaryImportMap
     {
         [Params(10, 20, 30, 40)]
