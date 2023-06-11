@@ -21,11 +21,11 @@ Simple single parameter(int) query comparison Gedaq.Npgsql vs Gedaq.DbConnection
 
 |             Method | Size |      Mean | Ratio | Allocated | Alloc Ratio |
 |------------------- |----- |----------:|------:|----------:|------------:|
-|       **Gedaq.Npgsql** |   **50** |  **7.307 ms** |  **0.99** |  **39.85 KB** |        **0.63** |
-| Gedaq.DbConnection |   50 |  7.396 ms |  1.00 |  63.29 KB |        1.00 |
+|       **Gedaq.Npgsql** |   **50** |  **6.833 ms** |  **0.94** |  **39.85 KB** |        **0.62** |
+| Gedaq.DbConnection |   50 |  7.266 ms |  1.00 | 64.07 KB |        1.00 |
 |                    |      |           |       |           |             |
-|       **Gedaq.Npgsql** |  **100** | **14.781 ms** |  **0.99** |  **79.71 KB** |        **0.63** |
-| Gedaq.DbConnection |  100 | 14.974 ms |  1.00 | 126.58 KB |        1.00 |
+|       **Gedaq.Npgsql** |  **100** | **14.166 ms** |  **1.02** |  **79.71 KB** |        **0.62** |
+| Gedaq.DbConnection |  100 | 13.852 ms |  1.00 | 128.14 KB |        1.00 |
 |                    |      |           |       |           |             |
-|       **Gedaq.Npgsql** |  **200** | **29.524 ms** |  **1.00** | **159.44 KB** |        **0.63** |
-| Gedaq.DbConnection |  200 | 29.570 ms |  1.00 | 253.16 KB |        1.00 |
+|       **Gedaq.Npgsql** |  **200** | **28.363 ms** |  **0.99** | **159.41 KB** |        **0.62** |
+| Gedaq.DbConnection |  200 | 28.745 ms |  1.00 | 256.28 KB |        1.00 |
