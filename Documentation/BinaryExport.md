@@ -8,7 +8,8 @@ public BinaryExportAttribute(
         Type queryMapType,
         MethodType methodType = MethodType.Sync,
         SourceType sourceType = SourceType.Connection,
-        AccessModifier accessModifier = AccessModifier.AsContainingClass
+        AccessModifier accessModifier = AccessModifier.AsContainingClass,
+        AsyncResult asyncResultType = AsyncResult.ValueTask
 )
 
 ```
@@ -19,6 +20,7 @@ Parametrs:<br>
 `methodType`: type of generated method(sync/async, flags enum)<br>
 `sourceType`: type of connection source<br>
 `accessModifier`: Access Modifier of Generated Methods.<br>
+`asyncResultType`: The type of the generated Task/ValueTask method.<br>
 
 Model classes in example:
 ```C#
