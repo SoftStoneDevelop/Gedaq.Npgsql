@@ -15,7 +15,8 @@ namespace Gedaq.Npgsql.Attributes
             NpgsqlDbType[] dbTypes = null,
             MethodType methodType = MethodType.Sync,
             SourceType sourceType = SourceType.Connection,
-            AccessModifier accessModifier = AccessModifier.AsContainingClass
+            AccessModifier accessModifier = AccessModifier.AsContainingClass,
+            AsyncResult asyncResultType = AsyncResult.ValueTask
             )
         {
         }

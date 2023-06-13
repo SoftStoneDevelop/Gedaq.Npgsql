@@ -15,7 +15,8 @@ namespace Gedaq.Npgsql.Attributes
             SourceType sourceType = SourceType.Connection,
             QueryType queryType = QueryType.Read,
             bool generate = true,
-            AccessModifier accessModifier = AccessModifier.AsContainingClass
+            AccessModifier accessModifier = AccessModifier.AsContainingClass,
+            AsyncResult asyncResultType = AsyncResult.ValueTask
             )
         {
         }
