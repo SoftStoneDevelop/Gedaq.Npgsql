@@ -59,7 +59,7 @@ Usage from table:
 
 ```C#
 
-[BinaryExport(@"
+[BinaryExport(query: @"
 COPY person 
 (
 id,
@@ -72,9 +72,9 @@ middlename,
 lastname
 ) TO STDOUT (FORMAT BINARY)
 ", 
-            "BinaryExportTable",
-            typeof(Person), 
-            Gedaq.Common.Enums.MethodType.Sync | Gedaq.Common.Enums.MethodType.Async
+            methodName: "BinaryExportTable",
+            queryMapType: typeof(Person), 
+            methodType: Gedaq.Common.Enums.MethodType.Sync | Gedaq.Common.Enums.MethodType.Async
             )]
 public async Task SomeMethod(NpgsqlConnection connection)
 {
@@ -88,7 +88,7 @@ Usage from subquery:
 
 ```C#
 
-[BinaryExport(@"
+[BinaryExport(query: @"
 COPY 
 (
 SELECT 
@@ -110,9 +110,9 @@ LEFT JOIN country c ON c.id = i.country_id
 ORDER BY p.id ASC
 ) TO STDOUT (FORMAT BINARY)
 ", 
-            "BinaryExportSubquery",
-            typeof(Person), 
-            Gedaq.Common.Enums.MethodType.Sync | Gedaq.Common.Enums.MethodType.Async
+            methodName: "BinaryExportSubquery",
+            queryMapType: typeof(Person), 
+            methodType: Gedaq.Common.Enums.MethodType.Sync | Gedaq.Common.Enums.MethodType.Async
             )]
 public async Task SomeMethod(NpgsqlConnection connection)
 {
