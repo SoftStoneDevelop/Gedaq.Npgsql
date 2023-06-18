@@ -1,5 +1,6 @@
 ﻿using Gedaq.Common.Enums;
 using Gedaq.Npgsql.Enums;
+using NpgsqlTypes;
 using System;
 
 namespace Gedaq.Npgsql.Attributes
@@ -11,6 +12,7 @@ namespace Gedaq.Npgsql.Attributes
             string query,
             string methodName,
             Type queryMapType,
+            NpgsqlDbType[] dbTypes = null,
             MethodType methodType = MethodType.Sync,
             SourceType sourceType = SourceType.Connection,
             AccessModifier accessModifier = AccessModifier.AsContainingClass,
