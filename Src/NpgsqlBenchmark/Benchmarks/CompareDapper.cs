@@ -4,6 +4,8 @@ using Dapper;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
 using NpgsqlBenchmark.Model;
+using System.Collections.Generic;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
 
@@ -58,7 +60,7 @@ WHERE p.id > $1
             ),
             Gedaq.Npgsql.Attributes.Parametr(parametrType: typeof(int), position: 1)
             ]
-        [Benchmark(Description = $"Gedaq.Npgsql")]
+        [Benchmark(Baseline = true, Description = $"Gedaq.Npgsql")]
         public void Npgsql()
         {
             for (int i = 0; i < Size; i++)
@@ -67,7 +69,7 @@ WHERE p.id > $1
             }
         }
 
-        [Benchmark(Baseline = true, Description = "Dapper")]
+        [Benchmark(Description = "Dapper")]
         public void Dapper()
         {
             for (int i = 0; i < Size; i++)
@@ -93,6 +95,36 @@ new { id = 49999 },
 splitOn: "identification_id"
 )
                     .ToList();
+            }
+        }
+
+        public static IEnumerable<Person> DapperAOTGetAllPerson(DbConnection connection, int id) => connection.Query<Person, Identification, Person>(
+        @"SELECT 
+    p.id,
+    p.firstname,
+    p.middlename,
+    p.lastname,
+    p.identification_id,
+    i.typename
+FROM person p
+LEFT JOIN identification i ON i.id = p.identification_id
+WHERE p.id > @id
+",
+(person, ident) =>
+{
+    person.Identification = ident;
+    return person;
+},
+new { id },
+splitOn: "identification_id"
+                );
+
+        [Benchmark(Description = "DapperAOT")]
+        public void DapperAOT()
+        {
+            for (int i = 0; i < Size; i++)
+            {
+                var persons = DapperAOTGetAllPerson(_connection, 49999).ToList();
             }
         }
     }
