@@ -29,3 +29,5 @@ Simple single parameter(int) query comparison Gedaq.Npgsql vs Gedaq.DbConnection
 |                    |      |           |       |           |             |
 |       **Gedaq.Npgsql** |  **200** | **28.363 ms** |  **0.99** | **159.41 KB** |        **0.62** |
 | Gedaq.DbConnection |  200 | 28.745 ms |  1.00 | 256.28 KB |        1.00 |
+
+Something is still not clear and [Documentation](https://github.com/SoftStoneDevelop/Gedaq.Npgsql/tree/main/Documentation/Readme.md) does not help? [Feel free to ask a question on StackOverflow](https://stackoverflow.com/questions/ask?tags=gedaq,npgsql,c%23)
