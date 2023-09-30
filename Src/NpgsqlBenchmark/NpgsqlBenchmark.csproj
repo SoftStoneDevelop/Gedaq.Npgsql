@@ -4,11 +4,11 @@
 		<TargetFramework>net7.0</TargetFramework>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="BenchmarkDotNet" Version="0.13.6" />
-		<PackageReference Include="Dapper" Version="2.0.143" />
+		<PackageReference Include="BenchmarkDotNet" Version="0.13.8" />
+		<PackageReference Include="Dapper" Version="2.0.151" />
 		<PackageReference Include="Dapper.AOT" Version="0.5.0-beta.49" />
-		<PackageReference Include="Gedaq" Version="1.4.10" />
-		<PackageReference Include="Gedaq.DbConnection" Version="1.2.4" />
+		<PackageReference Include="Gedaq" Version="1.4.11.1" />
+		<PackageReference Include="Gedaq.DbConnection" Version="1.2.5" />
 		<PackageReference Include="Gedaq.Npgsql" Version="1.2.5" />
 		<PackageReference Include="System.Linq.Async" Version="6.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
