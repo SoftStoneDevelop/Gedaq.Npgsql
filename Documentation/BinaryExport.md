@@ -10,7 +10,8 @@ public BinaryExportAttribute(
         MethodType methodType = MethodType.Sync,
         SourceType sourceType = SourceType.Connection,
         AccessModifier accessModifier = AccessModifier.AsContainingClass,
-        AsyncResult asyncResultType = AsyncResult.ValueTask
+        AsyncResult asyncResultType = AsyncResult.ValueTask,
+        Type asPartInterface = null
 )
 
 ```
