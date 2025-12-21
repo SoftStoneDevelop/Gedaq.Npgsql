@@ -98,6 +98,7 @@ splitOn: "identification_id"
             }
         }
 
+        [DapperAot]
         public static IEnumerable<Person> DapperAOTGetAllPerson(DbConnection connection, int id) => connection.Query<Person, Identification, Person>(
         @"SELECT 
     p.id,
