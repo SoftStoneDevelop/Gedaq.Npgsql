@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace NpgsqlBenchmark.Benchmarks
 {
     [MemoryDiagnoser]
-    [SimpleJob(RuntimeMoniker.Net90)]
+    [SimpleJob(RuntimeMoniker.Net10_0)]
     [HideColumns("Error", "StdDev", "Median", "RatioSD", "Gen0", "Gen1", "Gen2")]
     public partial class CompareDapper : PostgresBenchmark
     {
