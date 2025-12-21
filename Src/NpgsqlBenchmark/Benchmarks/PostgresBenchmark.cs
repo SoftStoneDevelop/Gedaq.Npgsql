@@ -1,5 +1,6 @@
 ﻿using DotNet.Testcontainers.Builders;
 using Npgsql;
+using NpgsqlBenchmark.Helpers;
 using System;
 using System.Threading.Tasks;
 using Testcontainers.PostgreSql;
@@ -24,6 +25,8 @@ namespace NpgsqlBenchmark.Benchmarks
                 .Build();
 
             await _postgre.StartAsync();
+            await _postgre.WaitContainerStateRunningAsync(TimeSpan.FromMinutes(1));
+            await _postgre.WaitResponseAsync(TimeSpan.FromMinutes(1));
 
             await using (var masterConnection = new NpgsqlConnection(_postgre.GetConnectionString()))
             {

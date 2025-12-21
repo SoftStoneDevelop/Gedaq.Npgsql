@@ -1,11 +1,12 @@
 ﻿using BenchmarkDotNet.Running;
 using NpgsqlBenchmark.Benchmarks;
+using System.Threading.Tasks;
 
 namespace NpgsqlBenchmark
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             //BenchmarkRunner.Run<ComparePrepareDapper>();
             BenchmarkRunner.Run<CompareDapper>();
