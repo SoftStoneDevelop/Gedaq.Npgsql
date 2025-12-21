@@ -1,41 +1,30 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
-using Microsoft.Extensions.Configuration;
-using Npgsql;
 using NpgsqlBenchmark.Model;
 using System.Data.Common;
-using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace NpgsqlBenchmark.Benchmarks
 {
     [MemoryDiagnoser]
-    [SimpleJob(RuntimeMoniker.Net70)]
+    [SimpleJob(RuntimeMoniker.Net90)]
     [HideColumns("Error", "StdDev", "Median", "RatioSD", "Gen0", "Gen1", "Gen2")]
-    public class QueryMap
+    public class QueryMap : PostgresBenchmark
     {
         [Params(50, 100, 200)]
         public int Size;
 
-        private NpgsqlConnection _connection;
-
         [GlobalSetup]
-        public void Setup()
+        public async Task Setup()
         {
-            var root = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("settings.json", optional: false)
-                .Build()
-                ;
-
-            _connection = new NpgsqlConnection(root.GetConnectionString("SqlConnection"));
-            _connection.Open();
+            await OneTimeSetUp();
         }
 
         [GlobalCleanup]
-        public void Cleanup()
+        public async Task Cleanup()
         {
-            _connection?.Dispose();
+            await OneTimeTearDown();
         }
 
         [Gedaq.Npgsql.Attributes.Query(
@@ -54,16 +43,16 @@ LEFT JOIN identification i ON i.id = p.identification_id
 WHERE p.id = $1
 ",
             "ReadInnerMap",
-            typeof(Person)
-            ),
+            typeof(Person)),
             Gedaq.Npgsql.Attributes.Parametr(parametrType: typeof(int), position: 1)
             ]
         [Benchmark(Description = $"Gedaq.Npgsql")]
-        public void Npgsql()
+        public async Task Npgsql()
         {
+            await using var connection = await _npgsqlDataSource.OpenConnectionAsync();
             for (int i = 0; i < Size; i++)
             {
-                var persons = ((NpgsqlConnection)_connection).ReadInnerMap(50000).ToList();
+                var persons = connection.ReadInnerMap(50000).ToList();
             }
         }
 
@@ -88,11 +77,12 @@ WHERE p.id = @id
             Gedaq.DbConnection.Attributes.Parametr(parametrType: typeof(int), parametrName: "id")
             ]
         [Benchmark(Baseline = true, Description = "Gedaq.DbConnection")]
-        public void DbConnection()
+        public async Task DbConnection()
         {
+            await using var connection = await _npgsqlDataSource.OpenConnectionAsync();
             for (int i = 0; i < Size; i++)
             {
-                var persons = ((DbConnection)_connection).ReadInnerMap(50000).ToList();
+                var persons = ((DbConnection)connection).ReadInnerMap(50000).ToList();
             }
         }
     }

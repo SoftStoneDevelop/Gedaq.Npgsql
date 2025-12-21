@@ -1,40 +1,29 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
-using Microsoft.Extensions.Configuration;
-using Npgsql;
 using NpgsqlBenchmark.Model;
-using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace NpgsqlBenchmark.Benchmarks
 {
     [MemoryDiagnoser]
-    [SimpleJob(RuntimeMoniker.Net70)]
+    [SimpleJob(RuntimeMoniker.Net90)]
     [HideColumns("Error", "StdDev", "Median", "RatioSD", "Gen0", "Gen1", "Gen2")]
-    public class BinaryImportMap
+    public class BinaryImportMap : PostgresBenchmark
     {
         [Params(10, 20, 30, 40)]
         public int Size;
 
-        private NpgsqlConnection _connection;
-
         [GlobalSetup]
-        public void Setup()
+        public async Task Setup()
         {
-            var root = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("settings.json", optional: false)
-                .Build()
-                ;
-
-            _connection = new NpgsqlConnection(root.GetConnectionString("SqlConnection"));
-            _connection.Open();
+            await OneTimeSetUp();
         }
 
         [GlobalCleanup]
-        public void Cleanup()
+        public async Task Cleanup()
         {
-            _connection?.Dispose();
+            await OneTimeTearDown();
         }
 
         [Gedaq.Npgsql.Attributes.Query(
@@ -55,11 +44,12 @@ LEFT JOIN identification i ON i.id = p.identification_id
             typeof(Person)
             )]
         [Benchmark(Description = $"NpgsqlQuery")]
-        public void NpgsqlQuery()
+        public async Task NpgsqlQuery()
         {
+            await using var connection = await _npgsqlDataSource.OpenConnectionAsync();
             for (int i = 0; i < Size; i++)
             {
-                var persons = _connection.NpgsqlQuery().ToList();
+                var persons = connection.NpgsqlQuery().ToList();
             }
         }
 
@@ -84,11 +74,12 @@ LEFT JOIN identification i ON i.id = p.identification_id
             typeof(Person)
             )]
         [Benchmark(Baseline = true, Description = "NpgsqlBinaryImport")]
-        public void NpgsqlBinaryImport()
+        public async Task NpgsqlBinaryImport()
         {
+            await using var connection = await _npgsqlDataSource.OpenConnectionAsync();
             for (int i = 0; i < Size; i++)
             {
-                var persons = _connection.NpgsqlBinaryImport().ToList();
+                var persons = connection.NpgsqlBinaryImport().ToList();
             }
         }
     }

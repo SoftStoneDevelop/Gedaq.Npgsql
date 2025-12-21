@@ -1,41 +1,30 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using Dapper;
-using Microsoft.Extensions.Configuration;
-using Npgsql;
 using NpgsqlBenchmark.Model;
-using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace NpgsqlBenchmark.Benchmarks
 {
     [MemoryDiagnoser]
-    [SimpleJob(RuntimeMoniker.Net70)]
+    [SimpleJob(RuntimeMoniker.Net90)]
     [HideColumns("Error", "StdDev", "Median", "RatioSD", "Gen0", "Gen1", "Gen2")]
-    public partial class ComparePrepareDapper
+    public partial class ComparePrepareDapper : PostgresBenchmark
     {
         [Params(100, 200, 300)]
         public int Size;
 
-        private NpgsqlConnection _connection;
-
         [GlobalSetup]
-        public void Setup()
+        public async Task Setup()
         {
-            var root = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("settings.json", optional: false)
-                .Build()
-                ;
-
-            _connection = new NpgsqlConnection(root.GetConnectionString("SqlConnection"));
-            _connection.Open();
+            await OneTimeSetUp();
         }
 
         [GlobalCleanup]
-        public void Cleanup()
+        public async Task Cleanup()
         {
-            _connection?.Dispose();
+            await OneTimeTearDown();
         }
 
         [Gedaq.Npgsql.Attributes.Query(
@@ -59,9 +48,10 @@ WHERE p.id < $1
             Gedaq.Npgsql.Attributes.Parametr(parametrType: typeof(int), position: 1) 
             ]
         [Benchmark(Description = $"Gedaq.Npgsql")]
-        public void Npgsql()
+        public async Task Npgsql()
         {
-            using var getAllCmd = CreateGetAllPersonCommand(_connection, prepare: true);
+            await using var connection = await _npgsqlDataSource.OpenConnectionAsync();
+            using var getAllCmd = CreateGetAllPersonCommand(connection, prepare: true);
             for (int i = 0; i < Size; i++)
             {
                 SetGetAllPersonParametrs(getAllCmd, i);
@@ -75,13 +65,14 @@ WHERE p.id < $1
         }
 
         [Benchmark(Baseline = true, Description = "Dapper")]
-        public void Dapper()
+        public async Task Dapper()
         {
+            await using var connection = await _npgsqlDataSource.OpenConnectionAsync();
             var param = new Parametr();
             for (int i = 0; i < Size; i++)
             {
                 param.id = i;
-                var persons = _connection.Query<Person, Identification, Person>(@"
+                var persons = connection.Query<Person, Identification, Person>(@"
 SELECT 
     p.id,
     p.firstname,
