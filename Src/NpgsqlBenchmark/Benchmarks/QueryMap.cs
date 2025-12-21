@@ -1,41 +1,56 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
-using Microsoft.Extensions.Configuration;
 using Npgsql;
 using NpgsqlBenchmark.Model;
 using System.Data.Common;
-using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace NpgsqlBenchmark.Benchmarks
 {
     [MemoryDiagnoser]
-    [SimpleJob(RuntimeMoniker.Net70)]
+    [SimpleJob(RuntimeMoniker.Net10_0)]
     [HideColumns("Error", "StdDev", "Median", "RatioSD", "Gen0", "Gen1", "Gen2")]
-    public class QueryMap
+    public class QueryMap : PostgresBenchmark
     {
-        [Params(50, 100, 200)]
-        public int Size;
-
         private NpgsqlConnection _connection;
 
-        [GlobalSetup]
-        public void Setup()
-        {
-            var root = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("settings.json", optional: false)
-                .Build()
-                ;
+        [Params(50, 100, 200)]
+        public int Calls;
 
-            _connection = new NpgsqlConnection(root.GetConnectionString("SqlConnection"));
-            _connection.Open();
+        [GlobalSetup]
+        public async Task GlobalSetup()
+        {
+            await OneTimeSetUp();
         }
 
         [GlobalCleanup]
-        public void Cleanup()
+        public async Task GlobalCleanup()
         {
-            _connection?.Dispose();
+            await OneTimeTearDown();
+        }
+
+        [IterationSetup]
+        public void IterationSetup()
+        {
+            _connection = _npgsqlDataSource.OpenConnection();
+        }
+
+        [IterationCleanup]
+        public void IterationCleanup()
+        {
+            try
+            {
+                _connection?.Dispose();
+            }
+            catch
+            {
+                // ignore
+            }
+            finally
+            {
+                _connection = null;
+            }
         }
 
         [Gedaq.Npgsql.Attributes.Query(
@@ -51,19 +66,18 @@ SELECT
     p.lastname
 FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
-WHERE p.id = $1
+WHERE p.id >= $1
 ",
             "ReadInnerMap",
-            typeof(Person)
-            ),
+            typeof(Person)),
             Gedaq.Npgsql.Attributes.Parametr(parametrType: typeof(int), position: 1)
             ]
         [Benchmark(Description = $"Gedaq.Npgsql")]
-        public void Npgsql()
+        public async Task Npgsql()
         {
-            for (int i = 0; i < Size; i++)
+            for (int i = 0; i < Calls; i++)
             {
-                var persons = ((NpgsqlConnection)_connection).ReadInnerMap(50000).ToList();
+                var persons = _connection.ReadInnerMap(999_999).ToList();
             }
         }
 
@@ -80,7 +94,7 @@ SELECT
     p.lastname
 FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
-WHERE p.id = @id
+WHERE p.id >= @id
 ",
             "ReadInnerMap",
             typeof(Person)
@@ -88,11 +102,11 @@ WHERE p.id = @id
             Gedaq.DbConnection.Attributes.Parametr(parametrType: typeof(int), parametrName: "id")
             ]
         [Benchmark(Baseline = true, Description = "Gedaq.DbConnection")]
-        public void DbConnection()
+        public async Task DbConnection()
         {
-            for (int i = 0; i < Size; i++)
+            for (int i = 0; i < Calls; i++)
             {
-                var persons = ((DbConnection)_connection).ReadInnerMap(50000).ToList();
+                var persons = ((DbConnection)_connection).ReadInnerMap(999_999).ToList();
             }
         }
     }

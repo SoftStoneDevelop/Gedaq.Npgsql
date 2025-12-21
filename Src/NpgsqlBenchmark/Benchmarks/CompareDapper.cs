@@ -1,43 +1,58 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using Dapper;
-using Microsoft.Extensions.Configuration;
 using Npgsql;
 using NpgsqlBenchmark.Model;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace NpgsqlBenchmark.Benchmarks
 {
     [MemoryDiagnoser]
-    [SimpleJob(RuntimeMoniker.Net70)]
+    [SimpleJob(RuntimeMoniker.Net10_0)]
     [HideColumns("Error", "StdDev", "Median", "RatioSD", "Gen0", "Gen1", "Gen2")]
-    public partial class CompareDapper
+    public partial class CompareDapper : PostgresBenchmark
     {
-        [Params(10, 20, 30)]
-        public int Size;
-
         private NpgsqlConnection _connection;
 
-        [GlobalSetup]
-        public void Setup()
-        {
-            var root = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("settings.json", optional: false)
-                .Build()
-                ;
+        [Params(0)]
+        public int Size;
 
-            _connection = new NpgsqlConnection(root.GetConnectionString("SqlConnection"));
-            _connection.Open();
+        [GlobalSetup]
+        public async Task GlobalSetup()
+        {
+            await OneTimeSetUp();
         }
 
         [GlobalCleanup]
-        public void Cleanup()
+        public async Task GlobalCleanup()
         {
-            _connection?.Dispose();
+            await OneTimeTearDown();
+        }
+
+        [IterationSetup]
+        public void IterationSetup()
+        {
+            _connection = _npgsqlDataSource.OpenConnection();
+        }
+
+        [IterationCleanup]
+        public void IterationCleanup()
+        {
+            try
+            {
+                _connection?.Dispose();
+            }
+            catch
+            {
+                // ignore
+            }
+            finally
+            {
+                _connection = null;
+            }
         }
 
         [Gedaq.Npgsql.Attributes.Query(
@@ -53,28 +68,22 @@ SELECT
     p.lastname
 FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
-WHERE p.id > $1
+WHERE p.id >= $1
 ",
             "GetAllPerson",
-            typeof(Person)
-            ),
+            typeof(Person)),
             Gedaq.Npgsql.Attributes.Parametr(parametrType: typeof(int), position: 1)
             ]
-        [Benchmark(Baseline = true, Description = $"Gedaq.Npgsql")]
+        [Benchmark(Baseline = true, Description = $"Gedaq.Npgsql", OperationsPerInvoke = 1_000)]
         public void Npgsql()
         {
-            for (int i = 0; i < Size; i++)
-            {
-                var persons = GetAllPerson(_connection, 49999).ToList();
-            }
+            var persons = GetAllPerson(_connection, 50_000).ToList();
         }
 
-        [Benchmark(Description = "Dapper")]
+        [Benchmark(Description = "Dapper", OperationsPerInvoke = 1_000)]
         public void Dapper()
         {
-            for (int i = 0; i < Size; i++)
-            {
-                var persons = _connection.Query<Person, Identification, Person>(@"
+            var persons = _connection.Query<Person, Identification, Person>(@"
 SELECT 
     p.id,
     p.firstname,
@@ -84,20 +93,20 @@ SELECT
     i.typename
 FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
-WHERE p.id > @id
-", 
-(person, ident) => 
+WHERE p.id >= @id
+",
+(person, ident) =>
 {
     person.Identification = ident;
     return person;
 },
-new { id = 49999 },
+new { id = 50_000 },
 splitOn: "identification_id"
 )
                     .ToList();
-            }
         }
 
+        [DapperAot]
         public static IEnumerable<Person> DapperAOTGetAllPerson(DbConnection connection, int id) => connection.Query<Person, Identification, Person>(
         @"SELECT 
     p.id,
@@ -108,7 +117,7 @@ splitOn: "identification_id"
     i.typename
 FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
-WHERE p.id > @id
+WHERE p.id >= @id
 ",
 (person, ident) =>
 {
@@ -119,13 +128,10 @@ new { id },
 splitOn: "identification_id"
                 );
 
-        [Benchmark(Description = "DapperAOT")]
+        [Benchmark(Description = "DapperAOT", OperationsPerInvoke = 1_000)]
         public void DapperAOT()
         {
-            for (int i = 0; i < Size; i++)
-            {
-                var persons = DapperAOTGetAllPerson(_connection, 49999).ToList();
-            }
+            var persons = DapperAOTGetAllPerson(_connection, 50_000).ToList();
         }
     }
 }

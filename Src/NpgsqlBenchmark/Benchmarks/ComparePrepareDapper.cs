@@ -1,41 +1,56 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using Dapper;
-using Microsoft.Extensions.Configuration;
 using Npgsql;
 using NpgsqlBenchmark.Model;
-using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace NpgsqlBenchmark.Benchmarks
 {
     [MemoryDiagnoser]
-    [SimpleJob(RuntimeMoniker.Net70)]
+    [SimpleJob(RuntimeMoniker.Net10_0)]
     [HideColumns("Error", "StdDev", "Median", "RatioSD", "Gen0", "Gen1", "Gen2")]
-    public partial class ComparePrepareDapper
+    public partial class ComparePrepareDapper : PostgresBenchmark
     {
+        private NpgsqlConnection _connection;
+
         [Params(100, 200, 300)]
         public int Size;
 
-        private NpgsqlConnection _connection;
-
         [GlobalSetup]
-        public void Setup()
+        public async Task GlobalSetup()
         {
-            var root = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("settings.json", optional: false)
-                .Build()
-                ;
-
-            _connection = new NpgsqlConnection(root.GetConnectionString("SqlConnection"));
-            _connection.Open();
+            await OneTimeSetUp();
         }
 
         [GlobalCleanup]
-        public void Cleanup()
+        public async Task GlobalCleanup()
         {
-            _connection?.Dispose();
+            await OneTimeTearDown();
+        }
+
+        [IterationSetup]
+        public void IterationSetup()
+        {
+            _connection = _npgsqlDataSource.OpenConnection();
+        }
+
+        [IterationCleanup]
+        public void IterationCleanup()
+        {
+            try
+            {
+                _connection?.Dispose();
+            }
+            catch
+            {
+                // ignore
+            }
+            finally
+            {
+                _connection = null;
+            }
         }
 
         [Gedaq.Npgsql.Attributes.Query(
@@ -59,7 +74,7 @@ WHERE p.id < $1
             Gedaq.Npgsql.Attributes.Parametr(parametrType: typeof(int), position: 1) 
             ]
         [Benchmark(Description = $"Gedaq.Npgsql")]
-        public void Npgsql()
+        public async Task Npgsql()
         {
             using var getAllCmd = CreateGetAllPersonCommand(_connection, prepare: true);
             for (int i = 0; i < Size; i++)
@@ -75,7 +90,7 @@ WHERE p.id < $1
         }
 
         [Benchmark(Baseline = true, Description = "Dapper")]
-        public void Dapper()
+        public async Task Dapper()
         {
             var param = new Parametr();
             for (int i = 0; i < Size; i++)
@@ -101,7 +116,7 @@ WHERE p.id < @id
 param,
 splitOn: "identification_id"
 )
-                    .ToList();
+                    .AsList();
             }
         }
     }
