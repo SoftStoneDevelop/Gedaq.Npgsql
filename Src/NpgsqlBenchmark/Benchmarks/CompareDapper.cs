@@ -33,21 +33,17 @@ namespace NpgsqlBenchmark.Benchmarks
         }
 
         [IterationSetup]
-        public async Task IterationSetup()
+        public void IterationSetup()
         {
-            _connection = await _npgsqlDataSource.OpenConnectionAsync();
+            _connection = _npgsqlDataSource.OpenConnection();
         }
 
         [IterationCleanup]
-        public async Task IterationCleanup()
+        public void IterationCleanup()
         {
             try
             {
-                var connection = _connection;
-                if (connection != null)
-                {
-                    await connection.DisposeAsync();
-                }
+                _connection?.Dispose();
             }
             catch
             {
@@ -113,7 +109,7 @@ WHERE p.id > @id
 new { id = 49999 },
 splitOn: "identification_id"
 )
-                    .ToList();
+                    .AsList();
             }
         }
 
@@ -144,7 +140,7 @@ splitOn: "identification_id"
         {
             for (int i = 0; i < Size; i++)
             {
-                var persons = DapperAOTGetAllPerson(_connection, 49999).ToList();
+                var persons = DapperAOTGetAllPerson(_connection, 49999).AsList();
             }
         }
     }

@@ -31,21 +31,17 @@ namespace NpgsqlBenchmark.Benchmarks
         }
 
         [IterationSetup]
-        public async Task IterationSetup()
+        public void IterationSetup()
         {
-            _connection = await _npgsqlDataSource.OpenConnectionAsync();
+            _connection = _npgsqlDataSource.OpenConnection();
         }
 
         [IterationCleanup]
-        public async Task IterationCleanup()
+        public void IterationCleanup()
         {
             try
             {
-                var connection = _connection;
-                if (connection != null)
-                {
-                    await connection.DisposeAsync();
-                }
+                _connection?.Dispose();
             }
             catch
             {
