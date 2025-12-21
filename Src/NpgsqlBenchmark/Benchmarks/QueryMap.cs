@@ -16,7 +16,7 @@ namespace NpgsqlBenchmark.Benchmarks
         private NpgsqlConnection _connection;
 
         [Params(50, 100, 200)]
-        public int Size;
+        public int Calls;
 
         [GlobalSetup]
         public async Task GlobalSetup()
@@ -66,7 +66,7 @@ SELECT
     p.lastname
 FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
-WHERE p.id = $1
+WHERE p.id >= $1
 ",
             "ReadInnerMap",
             typeof(Person)),
@@ -75,9 +75,9 @@ WHERE p.id = $1
         [Benchmark(Description = $"Gedaq.Npgsql")]
         public async Task Npgsql()
         {
-            for (int i = 0; i < Size; i++)
+            for (int i = 0; i < Calls; i++)
             {
-                var persons = _connection.ReadInnerMap(50000).ToList();
+                var persons = _connection.ReadInnerMap(999_999).ToList();
             }
         }
 
@@ -94,7 +94,7 @@ SELECT
     p.lastname
 FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
-WHERE p.id = @id
+WHERE p.id >= @id
 ",
             "ReadInnerMap",
             typeof(Person)
@@ -104,9 +104,9 @@ WHERE p.id = @id
         [Benchmark(Baseline = true, Description = "Gedaq.DbConnection")]
         public async Task DbConnection()
         {
-            for (int i = 0; i < Size; i++)
+            for (int i = 0; i < Calls; i++)
             {
-                var persons = ((DbConnection)_connection).ReadInnerMap(50000).ToList();
+                var persons = ((DbConnection)_connection).ReadInnerMap(999_999).ToList();
             }
         }
     }

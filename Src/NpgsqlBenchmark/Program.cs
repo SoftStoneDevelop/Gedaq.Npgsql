@@ -9,8 +9,8 @@ namespace NpgsqlBenchmark
         static async Task Main(string[] args)
         {
             //BenchmarkRunner.Run<ComparePrepareDapper>();
-            BenchmarkRunner.Run<CompareDapper>();
-            //BenchmarkRunner.Run<QueryMap>();
+            //BenchmarkRunner.Run<CompareDapper>();
+            BenchmarkRunner.Run<QueryMap>();
             //BenchmarkRunner.Run<BinaryImportMap>();
         }
     }

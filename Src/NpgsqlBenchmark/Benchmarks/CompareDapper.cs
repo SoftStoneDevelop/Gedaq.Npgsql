@@ -12,14 +12,13 @@ namespace NpgsqlBenchmark.Benchmarks
 {
     [MemoryDiagnoser]
     [SimpleJob(RuntimeMoniker.Net10_0)]
-    //[SimpleJob(RuntimeMoniker.NativeAot10_0)]
     [HideColumns("Error", "StdDev", "Median", "RatioSD", "Gen0", "Gen1", "Gen2")]
     public partial class CompareDapper : PostgresBenchmark
     {
         private NpgsqlConnection _connection;
 
-        [Params(45_000, 40_000)] // 5_000 items, 10_000 items
-        public int IdGreaterThan;
+        [Params(0)]
+        public int Size;
 
         [GlobalSetup]
         public async Task GlobalSetup()
@@ -69,23 +68,20 @@ SELECT
     p.lastname
 FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
-WHERE p.id > $1
+WHERE p.id >= $1
 ",
             "GetAllPerson",
-            typeof(Person)
-            ),
+            typeof(Person)),
             Gedaq.Npgsql.Attributes.Parametr(parametrType: typeof(int), position: 1)
             ]
-        [Benchmark(Baseline = true, Description = $"Gedaq.Npgsql")]
-        public async Task Npgsql()
+        [Benchmark(Baseline = true, Description = $"Gedaq.Npgsql", OperationsPerInvoke = 1_000)]
+        public void Npgsql()
         {
-            var getCommand = CreateGetAllPersonCommand(_connection, true);
-            SetGetAllPersonParametrs(getCommand, IdGreaterThan);
-            var persons = ExecuteGetAllPersonCommand(getCommand).ToList();
+            var persons = GetAllPerson(_connection, 50_000).ToList();
         }
 
-        [Benchmark(Description = "Dapper")]
-        public async Task Dapper()
+        [Benchmark(Description = "Dapper", OperationsPerInvoke = 1_000)]
+        public void Dapper()
         {
             var persons = _connection.Query<Person, Identification, Person>(@"
 SELECT 
@@ -97,17 +93,17 @@ SELECT
     i.typename
 FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
-WHERE p.id > @id
+WHERE p.id >= @id
 ",
 (person, ident) =>
 {
     person.Identification = ident;
     return person;
 },
-new { id = IdGreaterThan },
+new { id = 50_000 },
 splitOn: "identification_id"
 )
-                    .AsList();
+                    .ToList();
         }
 
         [DapperAot]
@@ -121,7 +117,7 @@ splitOn: "identification_id"
     i.typename
 FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
-WHERE p.id > @id
+WHERE p.id >= @id
 ",
 (person, ident) =>
 {
@@ -132,10 +128,10 @@ new { id },
 splitOn: "identification_id"
                 );
 
-        [Benchmark(Description = "DapperAOT")]
-        public async Task DapperAOT()
+        [Benchmark(Description = "DapperAOT", OperationsPerInvoke = 1_000)]
+        public void DapperAOT()
         {
-            var persons = DapperAOTGetAllPerson(_connection, IdGreaterThan).AsList();
+            var persons = DapperAOTGetAllPerson(_connection, 50_000).ToList();
         }
     }
 }
