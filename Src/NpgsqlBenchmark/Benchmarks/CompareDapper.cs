@@ -12,13 +12,14 @@ namespace NpgsqlBenchmark.Benchmarks
 {
     [MemoryDiagnoser]
     [SimpleJob(RuntimeMoniker.Net10_0)]
+    //[SimpleJob(RuntimeMoniker.NativeAot10_0)]
     [HideColumns("Error", "StdDev", "Median", "RatioSD", "Gen0", "Gen1", "Gen2")]
     public partial class CompareDapper : PostgresBenchmark
     {
         private NpgsqlConnection _connection;
 
-        [Params(10, 20, 30)]
-        public int Size;
+        [Params(45_000, 40_000)] // 5_000 items, 10_000 items
+        public int IdGreaterThan;
 
         [GlobalSetup]
         public async Task GlobalSetup()
@@ -78,18 +79,15 @@ WHERE p.id > $1
         [Benchmark(Baseline = true, Description = $"Gedaq.Npgsql")]
         public async Task Npgsql()
         {
-            for (int i = 0; i < Size; i++)
-            {
-                var persons = GetAllPerson(_connection, 49999).ToList();
-            }
+            var getCommand = CreateGetAllPersonCommand(_connection, true);
+            SetGetAllPersonParametrs(getCommand, IdGreaterThan);
+            var persons = ExecuteGetAllPersonCommand(getCommand).ToList();
         }
 
         [Benchmark(Description = "Dapper")]
         public async Task Dapper()
         {
-            for (int i = 0; i < Size; i++)
-            {
-                var persons = _connection.Query<Person, Identification, Person>(@"
+            var persons = _connection.Query<Person, Identification, Person>(@"
 SELECT 
     p.id,
     p.firstname,
@@ -100,17 +98,16 @@ SELECT
 FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
 WHERE p.id > @id
-", 
-(person, ident) => 
+",
+(person, ident) =>
 {
     person.Identification = ident;
     return person;
 },
-new { id = 49999 },
+new { id = IdGreaterThan },
 splitOn: "identification_id"
 )
                     .AsList();
-            }
         }
 
         [DapperAot]
@@ -138,10 +135,7 @@ splitOn: "identification_id"
         [Benchmark(Description = "DapperAOT")]
         public async Task DapperAOT()
         {
-            for (int i = 0; i < Size; i++)
-            {
-                var persons = DapperAOTGetAllPerson(_connection, 49999).AsList();
-            }
+            var persons = DapperAOTGetAllPerson(_connection, IdGreaterThan).AsList();
         }
     }
 }
