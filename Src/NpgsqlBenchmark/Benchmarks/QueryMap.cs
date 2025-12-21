@@ -1,5 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
+using Npgsql;
 using NpgsqlBenchmark.Model;
 using System.Data.Common;
 using System.Linq;
@@ -12,19 +13,48 @@ namespace NpgsqlBenchmark.Benchmarks
     [HideColumns("Error", "StdDev", "Median", "RatioSD", "Gen0", "Gen1", "Gen2")]
     public class QueryMap : PostgresBenchmark
     {
+        private NpgsqlConnection _connection;
+
         [Params(50, 100, 200)]
         public int Size;
 
         [GlobalSetup]
-        public async Task Setup()
+        public async Task GlobalSetup()
         {
             await OneTimeSetUp();
         }
 
         [GlobalCleanup]
-        public async Task Cleanup()
+        public async Task GlobalCleanup()
         {
             await OneTimeTearDown();
+        }
+
+        [IterationSetup]
+        public async Task IterationSetup()
+        {
+            _connection = await _npgsqlDataSource.OpenConnectionAsync();
+        }
+
+        [IterationCleanup]
+        public async Task IterationCleanup()
+        {
+            try
+            {
+                var connection = _connection;
+                if (connection != null)
+                {
+                    await connection.DisposeAsync();
+                }
+            }
+            catch
+            {
+                // ignore
+            }
+            finally
+            {
+                _connection = null;
+            }
         }
 
         [Gedaq.Npgsql.Attributes.Query(
@@ -49,10 +79,9 @@ WHERE p.id = $1
         [Benchmark(Description = $"Gedaq.Npgsql")]
         public async Task Npgsql()
         {
-            await using var connection = await _npgsqlDataSource.OpenConnectionAsync();
             for (int i = 0; i < Size; i++)
             {
-                var persons = connection.ReadInnerMap(50000).ToList();
+                var persons = _connection.ReadInnerMap(50000).ToList();
             }
         }
 
@@ -79,10 +108,9 @@ WHERE p.id = @id
         [Benchmark(Baseline = true, Description = "Gedaq.DbConnection")]
         public async Task DbConnection()
         {
-            await using var connection = await _npgsqlDataSource.OpenConnectionAsync();
             for (int i = 0; i < Size; i++)
             {
-                var persons = ((DbConnection)connection).ReadInnerMap(50000).ToList();
+                var persons = ((DbConnection)_connection).ReadInnerMap(50000).ToList();
             }
         }
     }

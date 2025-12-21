@@ -1,6 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using Dapper;
+using Npgsql;
 using NpgsqlBenchmark.Model;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -14,19 +15,48 @@ namespace NpgsqlBenchmark.Benchmarks
     [HideColumns("Error", "StdDev", "Median", "RatioSD", "Gen0", "Gen1", "Gen2")]
     public partial class CompareDapper : PostgresBenchmark
     {
+        private NpgsqlConnection _connection;
+
         [Params(10, 20, 30)]
         public int Size;
 
         [GlobalSetup]
-        public async Task Setup()
+        public async Task GlobalSetup()
         {
             await OneTimeSetUp();
         }
 
         [GlobalCleanup]
-        public async Task Cleanup()
+        public async Task GlobalCleanup()
         {
             await OneTimeTearDown();
+        }
+
+        [IterationSetup]
+        public async Task IterationSetup()
+        {
+            _connection = await _npgsqlDataSource.OpenConnectionAsync();
+        }
+
+        [IterationCleanup]
+        public async Task IterationCleanup()
+        {
+            try
+            {
+                var connection = _connection;
+                if (connection != null)
+                {
+                    await connection.DisposeAsync();
+                }
+            }
+            catch
+            {
+                // ignore
+            }
+            finally
+            {
+                _connection = null;
+            }
         }
 
         [Gedaq.Npgsql.Attributes.Query(
@@ -52,20 +82,18 @@ WHERE p.id > $1
         [Benchmark(Baseline = true, Description = $"Gedaq.Npgsql")]
         public async Task Npgsql()
         {
-            await using var connection = await _npgsqlDataSource.OpenConnectionAsync();
             for (int i = 0; i < Size; i++)
             {
-                var persons = GetAllPerson(connection, 49999).ToList();
+                var persons = GetAllPerson(_connection, 49999).ToList();
             }
         }
 
         [Benchmark(Description = "Dapper")]
         public async Task Dapper()
         {
-            await using var connection = await _npgsqlDataSource.OpenConnectionAsync();
             for (int i = 0; i < Size; i++)
             {
-                var persons = connection.Query<Person, Identification, Person>(@"
+                var persons = _connection.Query<Person, Identification, Person>(@"
 SELECT 
     p.id,
     p.firstname,
@@ -114,10 +142,9 @@ splitOn: "identification_id"
         [Benchmark(Description = "DapperAOT")]
         public async Task DapperAOT()
         {
-            await using var connection = await _npgsqlDataSource.OpenConnectionAsync();
             for (int i = 0; i < Size; i++)
             {
-                var persons = DapperAOTGetAllPerson(connection, 49999).ToList();
+                var persons = DapperAOTGetAllPerson(_connection, 49999).ToList();
             }
         }
     }
