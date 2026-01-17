@@ -3,12 +3,12 @@
 		<TargetFramework>net9.0</TargetFramework>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Gedaq.Common" Version="0.3.5" />
+		<PackageReference Include="Gedaq.Common" Version="9.0.0-beta" />
 		<PackageReference Include="Npgsql" Version="10.0.1" />
 	</ItemGroup>
 	<PropertyGroup>
 		<PackageId>Gedaq.Npgsql</PackageId>
-		<PackageVersion>9.0.0.2</PackageVersion>
+		<PackageVersion>9.0.1.1-beta</PackageVersion>
 		<Authors>Brevnov Vyacheslav Sergeevich</Authors>
 		<RepositoryUrl>https://github.com/SoftStoneDevelop/Gedaq.Npgsql</RepositoryUrl>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
