@@ -17,8 +17,7 @@ namespace Gedaq.Npgsql.Attributes
             SourceType sourceType = SourceType.Connection,
             AccessModifier accessModifier = AccessModifier.AsContainingClass,
             AsyncResult asyncResultType = AsyncResult.ValueTask,
-            Type asPartInterface = null
-            )
+            Type asPartInterface = null)
         {
         }
     }
