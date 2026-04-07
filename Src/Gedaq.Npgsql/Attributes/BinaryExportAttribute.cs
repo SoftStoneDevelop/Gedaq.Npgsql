@@ -11,7 +11,8 @@ namespace Gedaq.Npgsql.Attributes
         public BinaryExportAttribute(
             string query,
             string methodName,
-            Type queryMapType,
+            Type[] queryMapTypes = null,
+            string[] overrideAliasPrefixs = null,
             NpgsqlDbType[] dbTypes = null,
             MethodType methodType = MethodType.Sync,
             SourceType sourceType = SourceType.Connection,
