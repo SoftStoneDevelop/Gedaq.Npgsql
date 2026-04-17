@@ -53,31 +53,46 @@ namespace NpgsqlBenchmark.Benchmarks
             }
         }
 
-        [Gedaq.Npgsql.Attributes.Query(
-            @"
-SELECT 
-    p.id,
-    p.firstname,
-~StartInner::Identification:id~
-    i.id,
-    i.typename,
-~EndInner::Identification~
-    p.middlename,
-    p.lastname
-FROM person p
-LEFT JOIN identification i ON i.id = p.identification_id
-WHERE p.id >= $1
-",
-            "ReadInnerMap",
-            typeof(Person)),
-            Gedaq.Npgsql.Attributes.Parametr(parametrType: typeof(int), position: 1)
-            ]
+        //        [Gedaq.Npgsql.Attributes.Query(
+        //            @"
+        //SELECT 
+        //    p.id,
+        //    p.firstname,
+        //~StartInner::Identification:id~
+        //    i.id,
+        //    i.typename,
+        //~EndInner::Identification~
+        //    p.middlename,
+        //    p.lastname
+        //FROM person p
+        //LEFT JOIN identification i ON i.id = p.identification_id
+        //WHERE p.id >= $1
+        //",
+        //            "ReadInnerMap",
+        //            typeof(Person)),
+        //            Gedaq.Npgsql.Attributes.Parametr(parametrType: typeof(int), position: 1)
+        //            ]
         [Benchmark(Description = $"Gedaq.Npgsql")]
         public async Task Npgsql()
         {
             for (int i = 0; i < Calls; i++)
             {
-                var persons = _connection.ReadInnerMap(999_999).ToList();
+                var persons = _connection.ReadInnerMap(@"
+
+SELECT 
+    p.id,
+    p.firstname,
+
+    i.id as identification_id,
+    i.typename as identification_typename,
+
+    p.middlename,
+    p.lastname
+FROM person p
+LEFT JOIN identification i ON i.id = p.identification_id
+WHERE p.id >= $1
+
+", 999_999).ToList();
             }
         }
 
