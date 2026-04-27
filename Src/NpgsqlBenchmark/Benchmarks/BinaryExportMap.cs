@@ -10,7 +10,7 @@ namespace NpgsqlBenchmark.Benchmarks
     [MemoryDiagnoser]
     [SimpleJob(RuntimeMoniker.Net10_0)]
     [HideColumns("Error", "StdDev", "Median", "RatioSD", "Gen0", "Gen1", "Gen2")]
-    public class BinaryImportMap : PostgresBenchmark
+    public class BinaryExportMap : PostgresBenchmark
     {
         private NpgsqlConnection _connection;
 
@@ -67,8 +67,7 @@ FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
 ",
             "NpgsqlQuery",
-            typeof(Person)
-            )]
+            typeof(Person))]
         [Benchmark(Description = $"NpgsqlQuery")]
         public async Task NpgsqlQuery()
         {
@@ -95,15 +94,14 @@ FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
 ) TO STDOUT (FORMAT BINARY)
 ",
-            "NpgsqlBinaryImport",
-            typeof(Person)
-            )]
-        [Benchmark(Baseline = true, Description = "NpgsqlBinaryImport")]
-        public async Task NpgsqlBinaryImport()
+            "NpgsqlBinaryExport",
+            typeof(Person))]
+        [Benchmark(Baseline = true, Description = "NpgsqlBinaryExport")]
+        public async Task NpgsqlBinaryExport()
         {
             for (int i = 0; i < Size; i++)
             {
-                var persons = _connection.NpgsqlBinaryImport().ToList();
+                var persons = _connection.NpgsqlBinaryExport().ToList();
             }
         }
     }
