@@ -55,19 +55,19 @@ namespace NpgsqlBenchmark.Benchmarks
 
         [Gedaq.Npgsql.Attributes.Query(
             @"
-SELECT 
-    p.id,
-    p.firstname,
-~StartInner::Identification:id~
-    i.id,
-    i.typename,
-~EndInner::Identification~
-    p.middlename,
-    p.lastname
-FROM person p
-LEFT JOIN identification i ON i.id = p.identification_id
-WHERE p.id >= $1
-",
+        SELECT 
+            p.id,
+            p.firstname,
+        ~StartInner::Identification:id~
+            i.id,
+            i.typename,
+        ~EndInner::Identification~
+            p.middlename,
+            p.lastname
+        FROM person p
+        LEFT JOIN identification i ON i.id = p.identification_id
+        WHERE p.id >= $1
+        ",
             "ReadInnerMap",
             typeof(Person)),
             Gedaq.Npgsql.Attributes.Parametr(parametrType: typeof(int), position: 1)
