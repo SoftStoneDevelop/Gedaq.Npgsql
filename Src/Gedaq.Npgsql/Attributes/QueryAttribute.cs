@@ -16,7 +16,7 @@ namespace Gedaq.Npgsql.Attributes
         /// </summary>
         /// <param name="methodName">Name of the generated method</param>
         /// <param name="query">Sql query</param>
-        /// <param name="queryMapTypes">The types into which the string received from the database will be converted</param>
+        /// <param name="queryMapTypes">The types into which the Row received from the database will be converted</param>
         /// <param name="overrideAliasPrefixs">Alias ​​overrides that are derived from attributes <seealso cref="Gedaq.Common.Attributes.AliasAttribute"/></param>
         /// <param name="methodType">Type of generated method see <see cref="MethodType"/></param>
         /// <param name="sourceType">The type of database connection source for which the method will be generated see <see cref="SourceType"/></param>

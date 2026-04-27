@@ -1,5 +1,6 @@
 ﻿using Gedaq.Common.Enums;
 using Gedaq.Npgsql.Enums;
+using NpgsqlTypes;
 using System;
 
 namespace Gedaq.Npgsql.Attributes
@@ -18,6 +19,7 @@ namespace Gedaq.Npgsql.Attributes
         /// <param name="query">Sql query</param>
         /// <param name="methodName">Name of the generated method</param>
         /// <param name="queryMapType">The data type of the collection of elements from which the import will be performed</param>
+        /// <param name="dbTypes">The database types, in the order they appear in the query, that will be read in that order from the Row.</param>
         /// <param name="methodType">Type of generated method see <see cref="MethodType"/></param>
         /// <param name="sourceType">The type of database connection source for which the method will be generated see <see cref="SourceType"/></param>
         /// <param name="accessModifier">Access Modifier of Generated Methods see <see cref="AccessModifier"/></param>
@@ -27,6 +29,7 @@ namespace Gedaq.Npgsql.Attributes
             string query,
             string methodName,
             Type queryMapType,
+            NpgsqlDbType[]? dbTypes = null,
             MethodType methodType = MethodType.Sync,
             SourceType sourceType = SourceType.Connection,
             AccessModifier accessModifier = AccessModifier.AsContainingClass,
