@@ -26,7 +26,7 @@ namespace Gedaq.Npgsql.Attributes
         /// <param name="asyncResultType">The type of the generated Task/ValueTask see <see cref="AsyncResult"/> method</param>
         /// <param name="asPartInterface">The interface of which the generated method should be a part. It also generates descriptions of this method for the interface.</param>
         public BinaryImportAttribute(
-            string query,
+            string? query,
             string methodName,
             Type queryMapType,
             NpgsqlDbType[]? dbTypes = null,
