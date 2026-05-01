@@ -54,7 +54,8 @@ namespace NpgsqlBenchmark.Benchmarks
         }
 
         [Gedaq.Npgsql.Attributes.Query(
-            @"
+            methodName: "ReadInnerMap",
+            query: @"
         SELECT 
             p.id,
             p.firstname,
@@ -68,10 +69,8 @@ namespace NpgsqlBenchmark.Benchmarks
         LEFT JOIN identification i ON i.id = p.identification_id
         WHERE p.id >= $1
         ",
-            "ReadInnerMap",
-            typeof(Person)),
-            Gedaq.Npgsql.Attributes.Parametr(parametrType: typeof(int), position: 1)
-            ]
+            queryMapTypes: [typeof(Person)]),
+            Gedaq.Npgsql.Attributes.Parametr(parametrType: typeof(int), position: 1)]
         [Benchmark(Description = $"Gedaq.Npgsql")]
         public async Task Npgsql()
         {
@@ -82,7 +81,7 @@ namespace NpgsqlBenchmark.Benchmarks
         }
 
         [Gedaq.DbConnection.Attributes.Query(
-            @"
+            query: @"
 SELECT 
     p.id,
     p.firstname,
@@ -96,11 +95,9 @@ FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
 WHERE p.id >= @id
 ",
-            "ReadInnerMap",
-            typeof(Person)
-            ),
-            Gedaq.DbConnection.Attributes.Parametr(parametrType: typeof(int), parametrName: "id")
-            ]
+            methodName: "ReadInnerMap",
+            queryMapTypes: [typeof(Person)]),
+            Gedaq.DbConnection.Attributes.Parametr(parametrType: typeof(int), parametrName: "id")]
         [Benchmark(Baseline = true, Description = "Gedaq.DbConnection")]
         public async Task DbConnection()
         {

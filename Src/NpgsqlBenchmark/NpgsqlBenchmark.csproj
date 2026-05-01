@@ -7,9 +7,9 @@
 		<PackageReference Include="BenchmarkDotNet" Version="0.15.8" />
 		<PackageReference Include="Dapper" Version="2.1.72" />
 		<PackageReference Include="Dapper.AOT" Version="1.0.48" />
-		<PackageReference Include="Gedaq" Version="1.6.1" />
-		<PackageReference Include="Gedaq.DbConnection" Version="1.2.6" />
-		<PackageReference Include="Gedaq.Npgsql" Version="9.0.0.1-beta" />
+		<PackageReference Include="Gedaq" Version="10.0.0" />
+		<PackageReference Include="Gedaq.DbConnection" Version="10.0.0.2" />
+		<PackageReference Include="Gedaq.Npgsql" Version="10.0.0.3" />
 		<PackageReference Include="System.Linq.Async" Version="7.0.1" />
 		<PackageReference Include="Testcontainers.PostgreSql" Version="4.11.0" />
 	</ItemGroup>

@@ -1,24 +1,37 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using Dapper;
+using Gedaq.Common.Enums;
 using Npgsql;
 using NpgsqlBenchmark.Model;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace NpgsqlBenchmark.Benchmarks
 {
+    public class PersonFlat
+    {
+        public int Id { get; set; }
+
+        public string FirstName { get; set; }
+
+        public string MiddleName { get; set; }
+
+        public string LastName { get; set; }
+
+        [Gedaq.Common.Attributes.IgnoreProperty()]
+        public Identification Identification { get; set; }
+    }
+
     [MemoryDiagnoser]
     [SimpleJob(RuntimeMoniker.Net10_0)]
-    [HideColumns("Error", "StdDev", "Median", "RatioSD", "Gen0", "Gen1", "Gen2")]
     public partial class CompareDapper : PostgresBenchmark
     {
         private NpgsqlConnection _connection;
 
-        [Params(0)]
-        public int Size;
+        [Params(10, 20, 30)]
+        public int Iterations;
 
         [GlobalSetup]
         public async Task GlobalSetup()
@@ -55,8 +68,114 @@ namespace NpgsqlBenchmark.Benchmarks
             }
         }
 
+        [Benchmark(Baseline = true, Description = "Dapper")]
+        public void Dapper()
+        {
+            for (int i = 0; i < Iterations; i++)
+            {
+                var persons = _connection.Query<Person, Identification, Person>(@"
+SELECT 
+    p.id,
+    p.firstname,
+    p.middlename,
+    p.lastname,
+    p.identification_id,
+    i.typename
+FROM person p
+LEFT JOIN identification i ON i.id = p.identification_id
+",
+(person, ident) =>
+{
+    person.Identification = ident;
+    return person;
+},
+splitOn: "identification_id").AsList();
+            }
+        }
+
+        [Benchmark(Description = "Dapper Async")]
+        public async Task DapperAsync()
+        {
+            for (int i = 0; i < Iterations; i++)
+            {
+                var persons = (await _connection.QueryAsync<Person, Identification, Person>(@"
+SELECT 
+    p.id,
+    p.firstname,
+    p.middlename,
+    p.lastname,
+    p.identification_id,
+    i.typename
+FROM person p
+LEFT JOIN identification i ON i.id = p.identification_id
+",
+(person, ident) =>
+{
+    person.Identification = ident;
+    return person;
+},
+splitOn: "identification_id")).AsList();
+            }
+        }
+
+        [DapperAot]
+        public static IEnumerable<Person> DapperAOTGetAllPerson(DbConnection connection) => connection.Query<Person, Identification, Person>(
+        @"SELECT 
+    p.id,
+    p.firstname,
+    p.middlename,
+    p.lastname,
+    p.identification_id,
+    i.typename
+FROM person p
+LEFT JOIN identification i ON i.id = p.identification_id
+",
+(person, ident) =>
+{
+    person.Identification = ident;
+    return person;
+},
+splitOn: "identification_id");
+
+        [Benchmark(Description = "DapperAOT")]
+        public void DapperAOT()
+        {
+            for (int i = 0; i < Iterations; i++)
+            {
+                var persons = DapperAOTGetAllPerson(_connection).AsList();
+            }
+        }
+
+        [DapperAot]
+        public static Task<IEnumerable<Person>> DapperAOTGetAllPersonAsync(DbConnection connection) => connection.QueryAsync<Person, Identification, Person>(
+        @"SELECT 
+    p.id,
+    p.firstname,
+    p.middlename,
+    p.lastname,
+    p.identification_id,
+    i.typename
+FROM person p
+LEFT JOIN identification i ON i.id = p.identification_id
+",
+(person, ident) =>
+{
+    person.Identification = ident;
+    return person;
+},
+splitOn: "identification_id");
+
+        [Benchmark(Description = "DapperAOT Async")]
+        public async Task DapperAOTAsync()
+        {
+            for (int i = 0; i < Iterations; i++)
+            {
+                var persons = (await DapperAOTGetAllPersonAsync(_connection)).AsList();
+            }
+        }
+
         [Gedaq.Npgsql.Attributes.Query(
-            @"
+            query: @"
 SELECT 
     p.id,
     p.firstname,
@@ -68,70 +187,78 @@ SELECT
     p.lastname
 FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
-WHERE p.id >= $1
 ",
-            "GetAllPerson",
-            typeof(Person)),
-            Gedaq.Npgsql.Attributes.Parametr(parametrType: typeof(int), position: 1)
-            ]
-        [Benchmark(Baseline = true, Description = $"Gedaq.Npgsql", OperationsPerInvoke = 1_000)]
-        public void Npgsql()
+            methodName: "GetAllPerson",
+            queryMapTypes: [typeof(Person)],
+            methodType: MethodType.Sync | MethodType.Async,
+            asyncResultType: AsyncResult.ValueTask)]
+        [Benchmark(Description = $"Gedaq Static Sync")]
+        public void GedaqStatic()
         {
-            var persons = GetAllPerson(_connection, 50_000).ToList();
+            for (int i = 0; i < Iterations; i++)
+            {
+                var persons = GetAllPerson(_connection);
+            }
         }
 
-        [Benchmark(Description = "Dapper", OperationsPerInvoke = 1_000)]
-        public void Dapper()
+        [Benchmark(Description = $"Gedaq Static Async")]
+        public async Task GedaqStaticAsync()
         {
-            var persons = _connection.Query<Person, Identification, Person>(@"
-SELECT 
-    p.id,
-    p.firstname,
-    p.middlename,
-    p.lastname,
-    p.identification_id,
-    i.typename
-FROM person p
-LEFT JOIN identification i ON i.id = p.identification_id
-WHERE p.id >= @id
-",
-(person, ident) =>
-{
-    person.Identification = ident;
-    return person;
-},
-new { id = 50_000 },
-splitOn: "identification_id"
-)
-                    .ToList();
+            for (int i = 0; i < Iterations; i++)
+            {
+                var persons = await GetAllPersonAsync(_connection);
+            }
         }
 
-        [DapperAot]
-        public static IEnumerable<Person> DapperAOTGetAllPerson(DbConnection connection, int id) => connection.Query<Person, Identification, Person>(
-        @"SELECT 
-    p.id,
-    p.firstname,
-    p.middlename,
-    p.lastname,
-    p.identification_id,
-    i.typename
-FROM person p
-LEFT JOIN identification i ON i.id = p.identification_id
-WHERE p.id >= @id
-",
-(person, ident) =>
-{
-    person.Identification = ident;
-    return person;
-},
-new { id },
-splitOn: "identification_id"
-                );
-
-        [Benchmark(Description = "DapperAOT", OperationsPerInvoke = 1_000)]
-        public void DapperAOT()
+        [Gedaq.Npgsql.Attributes.Query(
+            query: null,
+            methodName: "GetAllPersonDyn",
+            queryMapTypes: [typeof(PersonFlat), typeof(Identification)],
+            overrideAliasPrefixs: ["person_", "identity_"],
+            methodType: MethodType.Sync | MethodType.Async,
+            asyncResultType: AsyncResult.ValueTask)]
+        [Benchmark(Description = $"Gedaq Dynamic Sync")]
+        public void GedaqDynamic()
         {
-            var persons = DapperAOTGetAllPerson(_connection, 50_000).ToList();
+            for (int i = 0; i < Iterations; i++)
+            {
+                var persons = new List<PersonFlat>();
+
+                GetAllPersonDyn(_connection, @"
+        SELECT 
+            p.id as person_id,
+            p.firstname as person_firstname,
+            p.middlename as person_middlename,
+            p.lastname as person_lastname,
+            i.id as identity_id,
+            i.typename as identity_typename
+        FROM person p
+        LEFT JOIN identification i ON i.id = p.identification_id
+        ",
+    (person, indetity) => { person.Identification = indetity; persons.Add(person); });
+            }
+        }
+
+        [Benchmark(Description = $"Gedaq Dynamic Async")]
+        public async Task GedaqDynamicAsync()
+        {
+            for (int i = 0; i < Iterations; i++)
+            {
+                var persons = new List<PersonFlat>();
+
+                await GetAllPersonDynAsync(_connection, @"
+        SELECT 
+            p.id as person_id,
+            p.firstname as person_firstname,
+            p.middlename as person_middlename,
+            p.lastname as person_lastname,
+            i.id as identity_id,
+            i.typename as identity_typename
+        FROM person p
+        LEFT JOIN identification i ON i.id = p.identification_id
+        ",
+    (person, indetity) => { person.Identification = indetity; persons.Add(person); });
+            }
         }
     }
 }
