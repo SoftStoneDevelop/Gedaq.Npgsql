@@ -53,7 +53,7 @@ namespace NpgsqlBenchmark.Benchmarks
         }
 
         [Gedaq.Npgsql.Attributes.Query(
-            @"
+            query: @"
 SELECT 
     p.id,
     p.firstname,
@@ -66,19 +66,19 @@ SELECT
 FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
 ",
-            "NpgsqlQuery",
-            typeof(Person))]
+            methodName: "NpgsqlQuery",
+            queryMapTypes: [typeof(Person)])]
         [Benchmark(Description = $"NpgsqlQuery")]
         public async Task NpgsqlQuery()
         {
             for (int i = 0; i < Size; i++)
             {
-                var persons = _connection.NpgsqlQuery().ToList();
+                var persons = _connection.NpgsqlQuery();
             }
         }
 
         [Gedaq.Npgsql.Attributes.BinaryExport(
-            @"
+            query: @"
 COPY 
 (
 SELECT 
@@ -94,8 +94,8 @@ FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
 ) TO STDOUT (FORMAT BINARY)
 ",
-            "NpgsqlBinaryExport",
-            typeof(Person))]
+            methodName: "NpgsqlBinaryExport",
+            queryMapTypes: [typeof(Person)])]
         [Benchmark(Baseline = true, Description = "NpgsqlBinaryExport")]
         public async Task NpgsqlBinaryExport()
         {
