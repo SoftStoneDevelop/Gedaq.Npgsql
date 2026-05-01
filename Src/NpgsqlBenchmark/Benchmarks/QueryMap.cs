@@ -3,14 +3,12 @@ using BenchmarkDotNet.Jobs;
 using Npgsql;
 using NpgsqlBenchmark.Model;
 using System.Data.Common;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace NpgsqlBenchmark.Benchmarks
 {
     [MemoryDiagnoser]
     [SimpleJob(RuntimeMoniker.Net10_0)]
-    [HideColumns("Error", "StdDev", "Median", "RatioSD", "Gen0", "Gen1", "Gen2")]
     public class QueryMap : PostgresBenchmark
     {
         private NpgsqlConnection _connection;
@@ -76,7 +74,7 @@ namespace NpgsqlBenchmark.Benchmarks
         {
             for (int i = 0; i < Calls; i++)
             {
-                var persons = _connection.ReadInnerMap(999_999).ToList();
+                var persons = _connection.ReadInnerMap(0);
             }
         }
 
@@ -103,7 +101,7 @@ WHERE p.id >= @id
         {
             for (int i = 0; i < Calls; i++)
             {
-                var persons = ((DbConnection)_connection).ReadInnerMap(999_999).ToList();
+                var persons = ((DbConnection)_connection).ReadInnerMap(0);
             }
         }
     }
