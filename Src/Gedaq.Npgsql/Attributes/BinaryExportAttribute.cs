@@ -1,6 +1,5 @@
 ﻿using Gedaq.Common.Enums;
 using Gedaq.Npgsql.Enums;
-using NpgsqlTypes;
 using System;
 
 namespace Gedaq.Npgsql.Attributes

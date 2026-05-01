@@ -8,9 +8,11 @@ namespace NpgsqlBenchmark
     {
         static async Task Main(string[] args)
         {
-            // BenchmarkRunner.Run<CompareDapper>();
+            //BenchmarkRunner.Run<MarshallList>();
+            // BenchmarkRunner.Run<CompareDapperBatch>();
+            BenchmarkRunner.Run<CompareDapper>();
             // BenchmarkRunner.Run<QueryMap>();
-            BenchmarkRunner.Run<BinaryExportMap>();
+            // BenchmarkRunner.Run<BinaryExportMap>();
         }
     }
 }

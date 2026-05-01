@@ -30,6 +30,9 @@ namespace NpgsqlBenchmark.Benchmarks
     {
         private NpgsqlConnection _connection;
 
+        [Params(10, 20, 30)]
+        public int Iterations;
+
         [GlobalSetup]
         public async Task GlobalSetup()
         {
@@ -68,7 +71,9 @@ namespace NpgsqlBenchmark.Benchmarks
         [Benchmark(Baseline = true, Description = "Dapper")]
         public void Dapper()
         {
-            var persons = _connection.Query<Person, Identification, Person>(@"
+            for (int i = 0; i < Iterations; i++)
+            {
+                var persons = _connection.Query<Person, Identification, Person>(@"
 SELECT 
     p.id,
     p.firstname,
@@ -78,21 +83,22 @@ SELECT
     i.typename
 FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
-WHERE p.id >= @id
 ",
 (person, ident) =>
 {
     person.Identification = ident;
     return person;
 },
-new { id = 50_000 },
 splitOn: "identification_id").AsList();
+            }
         }
 
         [Benchmark(Description = "Dapper Async")]
         public async Task DapperAsync()
         {
-            var persons = (await _connection.QueryAsync<Person, Identification, Person>(@"
+            for (int i = 0; i < Iterations; i++)
+            {
+                var persons = (await _connection.QueryAsync<Person, Identification, Person>(@"
 SELECT 
     p.id,
     p.firstname,
@@ -102,19 +108,18 @@ SELECT
     i.typename
 FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
-WHERE p.id >= @id
 ",
 (person, ident) =>
 {
     person.Identification = ident;
     return person;
 },
-new { id = 50_000 },
 splitOn: "identification_id")).AsList();
+            }
         }
 
         [DapperAot]
-        public static IEnumerable<Person> DapperAOTGetAllPerson(DbConnection connection, int id) => connection.Query<Person, Identification, Person>(
+        public static IEnumerable<Person> DapperAOTGetAllPerson(DbConnection connection) => connection.Query<Person, Identification, Person>(
         @"SELECT 
     p.id,
     p.firstname,
@@ -124,24 +129,25 @@ splitOn: "identification_id")).AsList();
     i.typename
 FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
-WHERE p.id >= @id
 ",
 (person, ident) =>
 {
     person.Identification = ident;
     return person;
 },
-new { id },
 splitOn: "identification_id");
 
         [Benchmark(Description = "DapperAOT")]
         public void DapperAOT()
         {
-            var persons = DapperAOTGetAllPerson(_connection, 50_000).AsList();
+            for (int i = 0; i < Iterations; i++)
+            {
+                var persons = DapperAOTGetAllPerson(_connection).AsList();
+            }
         }
 
         [DapperAot]
-        public static Task<IEnumerable<Person>> DapperAOTGetAllPersonAsync(DbConnection connection, int id) => connection.QueryAsync<Person, Identification, Person>(
+        public static Task<IEnumerable<Person>> DapperAOTGetAllPersonAsync(DbConnection connection) => connection.QueryAsync<Person, Identification, Person>(
         @"SELECT 
     p.id,
     p.firstname,
@@ -151,20 +157,21 @@ splitOn: "identification_id");
     i.typename
 FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
-WHERE p.id >= @id
 ",
 (person, ident) =>
 {
     person.Identification = ident;
     return person;
 },
-new { id },
 splitOn: "identification_id");
 
         [Benchmark(Description = "DapperAOT Async")]
         public async Task DapperAOTAsync()
         {
-            var persons = (await DapperAOTGetAllPersonAsync(_connection, 50_000)).AsList();
+            for (int i = 0; i < Iterations; i++)
+            {
+                var persons = (await DapperAOTGetAllPersonAsync(_connection)).AsList();
+            }
         }
 
         [Gedaq.Npgsql.Attributes.Query(
@@ -180,22 +187,27 @@ SELECT
     p.lastname
 FROM person p
 LEFT JOIN identification i ON i.id = p.identification_id
-WHERE p.id >= $1
 ",
             methodName: "GetAllPerson",
             queryMapTypes: [typeof(Person)],
-            methodType: MethodType.Sync | MethodType.Async),
-            Gedaq.Npgsql.Attributes.Parametr(parametrType: typeof(int), position: 1)]
+            methodType: MethodType.Sync | MethodType.Async,
+            asyncResultType: AsyncResult.ValueTask)]
         [Benchmark(Description = $"Gedaq Static Sync")]
         public void GedaqStatic()
         {
-            var persons = GetAllPerson(_connection, 50_000);
+            for (int i = 0; i < Iterations; i++)
+            {
+                var persons = GetAllPerson(_connection);
+            }
         }
 
         [Benchmark(Description = $"Gedaq Static Async")]
         public async Task GedaqStaticAsync()
         {
-            var persons = await GetAllPersonAsync(_connection, 50_000);
+            for (int i = 0; i < Iterations; i++)
+            {
+                var persons = await GetAllPersonAsync(_connection);
+            }
         }
 
         [Gedaq.Npgsql.Attributes.Query(
@@ -203,16 +215,16 @@ WHERE p.id >= $1
             methodName: "GetAllPersonDyn",
             queryMapTypes: [typeof(PersonFlat), typeof(Identification)],
             overrideAliasPrefixs: ["person_", "identity_"],
-            methodType: MethodType.Sync | MethodType.Async),
-            Gedaq.Npgsql.Attributes.DynamicParametr()]
+            methodType: MethodType.Sync | MethodType.Async,
+            asyncResultType: AsyncResult.ValueTask)]
         [Benchmark(Description = $"Gedaq Dynamic Sync")]
         public void GedaqDynamic()
         {
-            var persons = new List<PersonFlat>();
-            var parametr = new NpgsqlParameter<int>();
-            parametr.TypedValue = 50_000;
+            for (int i = 0; i < Iterations; i++)
+            {
+                var persons = new List<PersonFlat>();
 
-            GetAllPersonDyn(_connection, @"
+                GetAllPersonDyn(_connection, @"
         SELECT 
             p.id as person_id,
             p.firstname as person_firstname,
@@ -222,20 +234,19 @@ WHERE p.id >= $1
             i.typename as identity_typename
         FROM person p
         LEFT JOIN identification i ON i.id = p.identification_id
-        WHERE p.id >= $1
         ",
-[parametr],
-(person, indetity) => { person.Identification = indetity; persons.Add(person); });
+    (person, indetity) => { person.Identification = indetity; persons.Add(person); });
+            }
         }
 
         [Benchmark(Description = $"Gedaq Dynamic Async")]
         public async Task GedaqDynamicAsync()
         {
-            var persons = new List<PersonFlat>();
-            var parametr = new NpgsqlParameter<int>();
-            parametr.TypedValue = 50_000;
+            for (int i = 0; i < Iterations; i++)
+            {
+                var persons = new List<PersonFlat>();
 
-            await GetAllPersonDynAsync(_connection, @"
+                await GetAllPersonDynAsync(_connection, @"
         SELECT 
             p.id as person_id,
             p.firstname as person_firstname,
@@ -245,10 +256,9 @@ WHERE p.id >= $1
             i.typename as identity_typename
         FROM person p
         LEFT JOIN identification i ON i.id = p.identification_id
-        WHERE p.id >= $1
         ",
-[parametr],
-(person, indetity) => { person.Identification = indetity; persons.Add(person); });
+    (person, indetity) => { person.Identification = indetity; persons.Add(person); });
+            }
         }
     }
 }

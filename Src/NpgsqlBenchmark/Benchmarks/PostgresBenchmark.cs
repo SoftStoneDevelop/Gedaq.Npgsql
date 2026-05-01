@@ -202,7 +202,7 @@ FROM STDIN (FORMAT BINARY)
                 var millions = 0;
                 var millionsCounter = 0;
 
-                for (int i = 0; i < 1_000_000; i++)
+                for (int i = 0; i < 50_000; i++)
                 {
                     writer.StartRow();
                     writer.Write(i, NpgsqlTypes.NpgsqlDbType.Integer);
@@ -226,10 +226,10 @@ FROM STDIN (FORMAT BINARY)
                         writer.Write(refId, NpgsqlTypes.NpgsqlDbType.Integer);
                     }
 
-                    if (++millionsCounter == 1_000_000)
+                    if (++millionsCounter == 50_000)
                     {
                         millionsCounter = 0;
-                        Console.WriteLine($"{++millions} Million");
+                        Console.WriteLine($"{++millions} 50_000");
                     }
                 }
                 Console.WriteLine($"Start Complete");
