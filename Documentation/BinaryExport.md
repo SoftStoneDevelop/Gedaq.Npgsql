@@ -1,31 +1,5 @@
-Constructors:
+Static query:
 
-```C#
-
-public BinaryExportAttribute(
-        string query,
-        string methodName,
-        Type queryMapType,
-        NpgsqlDbType[] dbTypes = null,
-        MethodType methodType = MethodType.Sync,
-        SourceType sourceType = SourceType.Connection,
-        AccessModifier accessModifier = AccessModifier.AsContainingClass,
-        AsyncResult asyncResultType = AsyncResult.ValueTask,
-        Type asPartInterface = null
-)
-
-```
-Parametrs:<br>
-`query`: sql query<br>
-`methodName`: name of the generated method<br>
-`queryMapType`: Type of result mapping collection<br>
-`dbTypes`: postgresql databese types<br>
-`methodType`: type of generated method(sync/async, flags enum)<br>
-`sourceType`: type of connection source<br>
-`accessModifier`: Access Modifier of Generated Methods.<br>
-`asyncResultType`: The type of the generated Task/ValueTask method.<br>
-
-Model classes in example:
 ```C#
 
 public class Person
@@ -60,7 +34,8 @@ Usage from table:
 
 ```C#
 
-[BinaryExport(query: @"
+[BinaryExport(query:
+            query: @"
 COPY person 
 (
 id,
@@ -74,15 +49,23 @@ lastname
 ) TO STDOUT (FORMAT BINARY)
 ", 
             methodName: "BinaryExportTable",
-            queryMapType: typeof(Person), 
-            methodType: Gedaq.Common.Enums.MethodType.Sync | Gedaq.Common.Enums.MethodType.Async
-            )]
+            queryMapTypes: [typeof(Person)], 
+            methodType: Gedaq.Common.Enums.MethodType.Sync | Gedaq.Common.Enums.MethodType.Async),
+            Gedaq.Npgsql.Attributes.DbTypesOverride(0, new NpgsqlDbType[]
+            {
+                NpgsqlTypes.NpgsqlDbType.Integer,
+                NpgsqlTypes.NpgsqlDbType.Text,
+                NpgsqlTypes.NpgsqlDbType.Integer,
+                NpgsqlTypes.NpgsqlDbType.Text,
+            })]
 public async Task SomeMethod(NpgsqlConnection connection)
 {
-    var persons = connection.BinaryExportTable().ToList();
-    var personsAsync = await connection.BinaryExportTableAsync().ToListAsync();
+    var persons = BinaryExportTable(connection);
+    var personsAsync = await BinaryExportTableAsync(connection);
 }
 ```
+DbTypesOverride specifies how exactly to read the data; if no override is specified, then attributes above the properties in the type must be specified.
+
 We had to use `~Reinterpret::id~` because `COPY` doesn't support aliases.
 
 Usage from subquery:
@@ -112,12 +95,20 @@ ORDER BY p.id ASC
 ) TO STDOUT (FORMAT BINARY)
 ", 
             methodName: "BinaryExportSubquery",
-            queryMapType: typeof(Person), 
-            methodType: Gedaq.Common.Enums.MethodType.Sync | Gedaq.Common.Enums.MethodType.Async
-            )]
+            queryMapTypes: [typeof(Person)], 
+            methodType: Gedaq.Common.Enums.MethodType.Sync | Gedaq.Common.Enums.MethodType.Async),
+            Gedaq.Npgsql.Attributes.DbTypesOverride(0, new NpgsqlDbType[]
+            {
+                NpgsqlTypes.NpgsqlDbType.Integer,
+                NpgsqlTypes.NpgsqlDbType.Text,
+                NpgsqlTypes.NpgsqlDbType.Integer,
+                NpgsqlTypes.NpgsqlDbType.Text,
+            })]
 public async Task SomeMethod(NpgsqlConnection connection)
 {
-    var persons = connection.BinaryExportSubqueryTable().ToList();
-    var personsAsync = await connection.BinaryExportSubqueryAsync().ToListAsync();
+    var persons = BinaryExportSubqueryTable(connection);
+    var personsAsync = await BinaryExportSubqueryAsync(connection);
 }
 ```
+
+Otherwise, the behavior is the same as [the Query attribute](https://github.com/SoftStoneDevelop/Gedaq.DbConnection/blob/main/Documentation/Query.md). Both dynamic queries and multimapping are supported.
