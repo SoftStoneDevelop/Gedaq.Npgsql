@@ -1,31 +1,4 @@
-Constructors:
-
-```C#
-
-public BinaryImportAttribute(
-        string query,
-        string methodName,
-        Type queryMapType,
-        NpgsqlDbType[] dbTypes = null,
-        MethodType methodType = MethodType.Sync,
-        SourceType sourceType = SourceType.Connection,
-        AccessModifier accessModifier = AccessModifier.AsContainingClass,
-        AsyncResult asyncResultType = AsyncResult.ValueTask,
-        Type asPartInterface = null
-)
-
-```
-Parametrs:<br>
-`query`: sql query<br>
-`methodName`: name of the generated method<br>
-`queryMapType`: Type of result mapping collection<br>
-`dbTypes`: postgresql database types<br>
-`methodType`: type of generated method(sync/async, flags enum)<br>
-`sourceType`: type of connection source<br>
-`accessModifier`: Access Modifier of Generated Methods.<br>
-`asyncResultType`: The type of the generated Task/ValueTask method.<br>
-
-Model classes in example:
+Static query:
 ```C#
 
 public class Person
@@ -47,13 +20,8 @@ public class Identification
     public string TypeName { get; set; }
 }
 
-```
-
-Usage from table:
-
-```C#
-
-[BinaryImport(@"
+[BinaryImport(
+            query: @"
 COPY person 
 (
 id,
@@ -67,9 +35,9 @@ lastname
 ) 
 FROM STDIN (FORMAT BINARY)
 ", 
-            "BinaryImport",
-            typeof(Person),
-            new NpgsqlDbType[] 
+            methodName: "BinaryImport",
+            queryMapType: typeof(Person),
+            dbTypes: new NpgsqlDbType[] 
             { 
                 NpgsqlDbType.Integer,//id
                 NpgsqlDbType.Text,//firstname
@@ -77,11 +45,65 @@ FROM STDIN (FORMAT BINARY)
                 NpgsqlDbType.Text,//middlename
                 NpgsqlDbType.Text//lastname
             },
-            Gedaq.Common.Enums.MethodType.Sync | Gedaq.Common.Enums.MethodType.Async
-            )]
+            methodType: Gedaq.Common.Enums.MethodType.Sync | Gedaq.Common.Enums.MethodType.Async)]
 public async Task SomeMethod(NpgsqlConnection connection, List<Person> list)
 {
     connection.BinaryImport(list);
     await connection.BinaryImportAsync(list);
 }
 ```
+________
+
+Dynamic query:
+Dynamic queries do not support special syntax, so the class model is different from a static query.
+
+```C#
+
+public class Person
+{
+    [Gedaq.Common.Attributes.Alias(order: 0)]
+    public int Id { get; set; }
+
+    [Gedaq.Common.Attributes.Alias(order: 1)]
+    public string FirstName { get; set; }
+
+    [Gedaq.Common.Attributes.Alias(order: 3)]
+    public string MiddleName { get; set; }
+
+    [Gedaq.Common.Attributes.Alias(order: 4)]
+    public string LastName { get; set; }
+
+    [Gedaq.Common.Attributes.Alias(order: 2)]
+    public int IdentificationId { get; set; }
+}
+
+[BinaryImport(
+            query: null,
+            methodName: "BinaryImport",
+            queryMapType: typeof(Person),
+            dbTypes: new NpgsqlDbType[] 
+            { 
+                NpgsqlDbType.Integer,
+                NpgsqlDbType.Text,
+                NpgsqlDbType.Integer,
+                NpgsqlDbType.Text,
+                NpgsqlDbType.Text
+            },
+            methodType: Gedaq.Common.Enums.MethodType.Sync | Gedaq.Common.Enums.MethodType.Async)]
+public async Task SomeMethod(NpgsqlConnection connection, List<Person> list)
+{
+    BinaryImport(connection, list, @"
+COPY person 
+(
+id,
+firstname,
+identification_id,
+middlename,
+lastname
+) 
+FROM STDIN (FORMAT BINARY)
+");
+}
+```
+
+For information on how to use the alias attribute, see [Query](https://github.com/SoftStoneDevelop/Gedaq.DbConnection/blob/main/Documentation/Query.md).
